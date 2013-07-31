@@ -78,6 +78,7 @@ namespace Callisto.TestApp
 			    Samples.Add(new SamplePage() { Name = "CustomDialog", Page = typeof(SamplePages.CustomDialogSample) });
                 Samples.Add(new SamplePage() { Name = "DropDownButton", Page = typeof(SamplePages.DropDownButtonSample) });
                 Samples.Add(new SamplePage() { Name = "WrapPanel", Page = typeof(SamplePages.WrapPanelSample) });
+                Samples.Add(new SamplePage() { Name = "TreeGrid", Page = typeof(SamplePages.TreeGridSample) });
 				this.DataContext = Samples;
 			}
 		}

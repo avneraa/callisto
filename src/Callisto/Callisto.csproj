@@ -140,6 +140,11 @@
     <Compile Include="Controls\Rating\ValueChangedEventArgs.cs" />
     <Compile Include="Controls\Rating\ValueChangedEventHandler.cs" />
     <Compile Include="Controls\Settings\SettingsFlyout.cs" />
+    <Compile Include="Controls\TreeGrid\ItemInfo.cs" />
+    <Compile Include="Controls\TreeGrid\ITreeGridItem.cs" />
+    <Compile Include="Controls\TreeGrid\TreeGrid.cs" />
+    <Compile Include="Controls\TreeGrid\TreeGridColumn.cs" />
+    <Compile Include="Controls\TreeGrid\TreeGridIcon.cs" />
     <Compile Include="Controls\WatermarkTextBox\WatermarkTextBox.cs" />
     <Compile Include="Controls\WrapPanel\OrientedSize.cs" />
     <Compile Include="Controls\WrapPanel\WrapPanel.cs" />

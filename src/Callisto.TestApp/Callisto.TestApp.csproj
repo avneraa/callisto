@@ -160,6 +160,9 @@
     <Compile Include="SamplePages\TiltSample.xaml.cs">
       <DependentUpon>TiltSample.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SamplePages\TreeGrid\ParseNodeItem.cs" />
+    <Compile Include="SamplePages\TreeGrid\SampleParseTreeData.cs" />
+    <Compile Include="SamplePages\TreeGrid\TreeGridSample.xaml.cs" />
     <Compile Include="SamplePages\WatermarkTextBoxSample.xaml.cs">
       <DependentUpon>WatermarkTextBoxSample.xaml</DependentUpon>
     </Compile>
@@ -204,6 +207,10 @@
     <Content Include="Images\grasshopper.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Page Include="SamplePages\TreeGrid\TreeGridSample.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="SamplePages\WrapPanelSample.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -289,6 +296,7 @@
   <ItemGroup>
     <None Include="Callisto.TestApp_TemporaryKey.pfx" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' ">
     <VisualStudioVersion>11.0</VisualStudioVersion>
   </PropertyGroup>

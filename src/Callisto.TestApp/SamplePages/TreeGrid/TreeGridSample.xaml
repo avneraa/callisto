@@ -1,0 +1,15 @@
+﻿<Page
+    x:Class="Callisto.TestApp.SamplePages.TreeGridSample"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Callisto.TestApp.SamplePages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"  xmlns:callisto="using:Callisto.Controls">
+
+    <Grid Background="Blue">
+        <Border BorderBrush="Black" BorderThickness="10">
+            <callisto:TreeGrid x:Name="SampleGrid" Background="Yellow"/>
+        </Border>
+    </Grid>
+</Page>
