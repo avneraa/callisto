@@ -39,13 +39,29 @@ namespace Callisto.TestApp.SamplePages
             var sampleData = new SampleParseTreeData();
             foreach (var parseNode in sampleData.RootNodes)
             {
-                var item = new ParseNodeItem(parseNode);
-                SampleGrid.Items.Add(item);
-                
+                var t = CreateTreeGridItem(parseNode);
+                SampleGrid.Items.Add(t);
             }
-            
-            
         }
+
+        private TreeGridItem CreateTreeGridItem(ParseNode parseNode)
+        {
+            var item = new TreeGridItem(GetChildren);
+            item.Fields.Add(parseNode.Name);
+            item.Fields.Add(parseNode.Value);
+            item.Fields.Add(parseNode.Type);
+            item.HasChildren = parseNode.HasChildren;
+            item.Tag = parseNode;
+            return item;
+        }
+
+        IEnumerable<TreeGridItem> GetChildren(TreeGridItem parent)
+        {
+            var pn = (ParseNode)parent.Tag;
+            return pn.Children.Select((c) => CreateTreeGridItem(c));
+        }
+
+
 
     }
 }

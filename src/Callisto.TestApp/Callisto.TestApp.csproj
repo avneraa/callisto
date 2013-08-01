@@ -160,7 +160,6 @@
     <Compile Include="SamplePages\TiltSample.xaml.cs">
       <DependentUpon>TiltSample.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SamplePages\TreeGrid\ParseNodeItem.cs" />
     <Compile Include="SamplePages\TreeGrid\SampleParseTreeData.cs" />
     <Compile Include="SamplePages\TreeGrid\TreeGridSample.xaml.cs" />
     <Compile Include="SamplePages\WatermarkTextBoxSample.xaml.cs">

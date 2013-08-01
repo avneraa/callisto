@@ -27,7 +27,7 @@ namespace Callisto.Controls
         private ScrollViewer _root;
         private Grid _rootGrid = new Grid() { Background = new SolidColorBrush(Colors.White) };
         private ObservableCollection<TreeGridColumn> _columnDefinitions = new ObservableCollection<TreeGridColumn>();
-        private ObservableCollection<ITreeGridItem> _items = new ObservableCollection<ITreeGridItem>();
+        private ObservableCollection<TreeGridItem> _items = new ObservableCollection<TreeGridItem>();
         private Dictionary<RowDefinition, ItemInfo> _rowItemMap = new Dictionary<RowDefinition, ItemInfo>(); 
         private GridLength _rowHeight;
         private double _rowSplitterHeight = 1;
@@ -108,7 +108,7 @@ namespace Callisto.Controls
         {
             if(e.Action == NotifyCollectionChangedAction.Add)
             {
-                foreach (ITreeGridItem item in e.NewItems)
+                foreach (TreeGridItem item in e.NewItems)
                 {
                     //Check that the number of columns matches the item fields
 #if DEBUG
@@ -126,7 +126,7 @@ namespace Callisto.Controls
             }
         }
 
-        private void UpdateRowForItem(ITreeGridItem item, int index, ItemInfo info)
+        private void UpdateRowForItem(TreeGridItem item, int index, ItemInfo info)
         {
             //Populate columns
             var fields = item.Fields.ToList();
@@ -178,7 +178,7 @@ namespace Callisto.Controls
             TreeGridIcon icon = (TreeGridIcon)sender;
             var tag = (ItemInfo)icon.Tag;
             var sp = (StackPanel)tag.Root;
-            var item = (ITreeGridItem) sp.Tag;
+            var item = (TreeGridItem) sp.Tag;
             //Cache children
 
             var currentIndex = Grid.GetRow(sp);
@@ -339,7 +339,7 @@ namespace Callisto.Controls
                 return _columnDefinitions;
             }
         }
-        public ObservableCollection<ITreeGridItem> Items
+        public ObservableCollection<TreeGridItem> Items
         {
             get 
             {
