@@ -1524,7 +1524,15 @@ limitations under the License.-->
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="local:TreeGrid">
-                    <ScrollViewer x:Name="RootScrollViewer" VerticalScrollBarVisibility="{TemplateBinding VerticalScrollBarVisibility}" HorizontalScrollBarVisibility="{TemplateBinding HorizontalScrollBarVisibility}"/>
+                    <ScrollViewer x:Name="RootScrollViewer" 
+                                  VerticalScrollBarVisibility="{TemplateBinding VerticalScrollBarVisibility}" 
+                                  HorizontalScrollBarVisibility="{TemplateBinding HorizontalScrollBarVisibility}"
+                                  Height="{TemplateBinding Height}"
+                                  Width="{TemplateBinding Width}" Background="{TemplateBinding Background}"
+                                  BorderBrush="{TemplateBinding BorderBrush}"
+                                  BorderThickness="{TemplateBinding BorderThickness}"
+                                  Margin="{TemplateBinding Margin}"
+                                  Padding="{TemplateBinding Padding}" />
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

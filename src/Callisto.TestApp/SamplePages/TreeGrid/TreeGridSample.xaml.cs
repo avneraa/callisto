@@ -1,21 +1,7 @@
 ﻿using Callisto.Controls;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
-using Windows.UI.Xaml.Navigation;
-
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
 namespace Callisto.TestApp.SamplePages
 {
@@ -32,9 +18,9 @@ namespace Callisto.TestApp.SamplePages
 
         private void PopulateDebuggerGrid()
         {
-            SampleGrid.ColumnDefinitions.Add(new TreeGridColumn() { Header = "Name" });
-            SampleGrid.ColumnDefinitions.Add(new TreeGridColumn() { Header = "Value" });
-            SampleGrid.ColumnDefinitions.Add(new TreeGridColumn() { Header = "Type" });
+            SampleGrid.ColumnDefinitions.Add(new TreeGridColumn() { Content = "Name" });
+            SampleGrid.ColumnDefinitions.Add(new TreeGridColumn() { Content = "Value" });
+            SampleGrid.ColumnDefinitions.Add(new TreeGridColumn() { Content = "Type" });
 
             var sampleData = new SampleParseTreeData();
             foreach (var parseNode in sampleData.RootNodes)
@@ -46,13 +32,19 @@ namespace Callisto.TestApp.SamplePages
 
         private TreeGridItem CreateTreeGridItem(ParseNode parseNode)
         {
-            var item = new TreeGridItem(GetChildren);
-            item.Fields.Add(parseNode.Name);
-            item.Fields.Add(parseNode.Value);
-            item.Fields.Add(parseNode.Type);
+            var item = new TreeGridItem(GetChildren) { Fields = GetCellsForParseNode(parseNode) };
             item.HasChildren = parseNode.HasChildren;
             item.Tag = parseNode;
             return item;
+        }
+
+        private List<TreeGridCell> GetCellsForParseNode(ParseNode parseNode)
+        {
+            var l = new List<TreeGridCell>();
+            l.Add(new TreeGridCell() { Content = parseNode.Name });
+            l.Add(new TreeGridCell() { Content = parseNode.Value });
+            l.Add(new TreeGridCell() { Content = parseNode.Type });
+            return l;
         }
 
         IEnumerable<TreeGridItem> GetChildren(TreeGridItem parent)

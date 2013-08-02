@@ -9,7 +9,7 @@ namespace Callisto.Controls
 {
     public class TreeGridItem
     {
-        private List<object> _fields = new List<object>();
+        private IEnumerable<TreeGridCell> _fields;
         private Func<TreeGridItem, IEnumerable<TreeGridItem>> _getChildren;
 
         public TreeGridItem()
@@ -21,11 +21,20 @@ namespace Callisto.Controls
         {
             _getChildren = getChildren;
         }
-        public List<object> Fields
+        public IEnumerable<TreeGridCell> Fields
         {
             get
             {
+                if(_fields == null)
+                {
+                    _fields = new List<TreeGridCell>();
+                }
                 return _fields;
+
+            }
+            set
+            {
+                _fields = value;
             }
         }
         internal IEnumerable<TreeGridItem> GetChildren()
@@ -45,5 +54,7 @@ namespace Callisto.Controls
         public object Tag { get; set; }
 
         public bool HasChildren { get; set; }
+
+        //TODO Expose rowheight and apply it to the underlying GridRow 
     }
 }

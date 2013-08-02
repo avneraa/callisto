@@ -141,6 +141,7 @@
     <Compile Include="Controls\Rating\ValueChangedEventHandler.cs" />
     <Compile Include="Controls\Settings\SettingsFlyout.cs" />
     <Compile Include="Controls\TreeGrid\ItemInfo.cs" />
+    <Compile Include="Controls\TreeGrid\TreeGridCell.cs" />
     <Compile Include="Controls\TreeGrid\TreeGridItem.cs" />
     <Compile Include="Controls\TreeGrid\TreeGrid.cs" />
     <Compile Include="Controls\TreeGrid\TreeGridColumn.cs" />

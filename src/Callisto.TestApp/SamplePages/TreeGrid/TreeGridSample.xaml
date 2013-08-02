@@ -8,8 +8,9 @@
     mc:Ignorable="d"  xmlns:callisto="using:Callisto.Controls">
 
     <Grid Background="Blue">
-        <Border BorderBrush="Black" BorderThickness="10">
-            <callisto:TreeGrid x:Name="SampleGrid" Background="Yellow"/>
+        <Border BorderBrush="Black" BorderThickness="1">
+            <!-- BUGBUG fix the issue where the last line is covered by the scroller when these are set Height="150" Width="190" -->
+            <callisto:TreeGrid x:Name="SampleGrid" Background="White"  />
         </Border>
     </Grid>
 </Page>

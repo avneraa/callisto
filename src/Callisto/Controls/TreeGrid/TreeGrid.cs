@@ -25,7 +25,7 @@ namespace Callisto.Controls
     {
         
         private ScrollViewer _root;
-        private Grid _rootGrid = new Grid() { Background = new SolidColorBrush(Colors.White) };
+        private Grid _rootGrid = new Grid();
         private ObservableCollection<TreeGridColumn> _columnDefinitions = new ObservableCollection<TreeGridColumn>();
         private ObservableCollection<TreeGridItem> _items = new ObservableCollection<TreeGridItem>();
         private Dictionary<RowDefinition, ItemInfo> _rowItemMap = new Dictionary<RowDefinition, ItemInfo>(); 
@@ -34,23 +34,12 @@ namespace Callisto.Controls
         private Brush _rowSplitterBrush = new SolidColorBrush(Colors.Blue);
         private double _rowSplitterOpacity = 1;
         private bool _headerRowAdded = false;
-        //private BitmapImage _collpasedImg = new BitmapImage(new Uri(@"ms-appx:///Controls/Common/Images/plus.png"));
-        //private BitmapImage _expandedImg = new BitmapImage(new Uri(@"ms-appx:///Controls/Common/Images/minus.png"));
         
         public TreeGrid()
         {
             this.DefaultStyleKey = typeof(TreeGrid);
             _columnDefinitions.CollectionChanged += _columnDefinitions_CollectionChanged;
             _items.CollectionChanged += _items_CollectionChanged;
-            _rootGrid.Tapped += rootGrid_Tapped;
-            //this.CollapsedImage = _collpasedImg;
-            //this.ExpandedImage = _expandedImg;
-
-        }
-
-        void rootGrid_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-            //throw new NotImplementedException();
         }
 
         protected override void OnApplyTemplate()
@@ -66,39 +55,44 @@ namespace Callisto.Controls
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                foreach (TreeGridColumn column in e.NewItems)
+                AddColumns(e.NewItems.Cast<TreeGridColumn>());
+            }
+        }
+
+        private void AddColumns(IEnumerable<TreeGridColumn> newColumns)
+        {
+            foreach (var column in newColumns)
+            {
+                int idx = _columnDefinitions.IndexOf(column);
+                bool first = idx == 0 ? true : false;
+                if (!first)
                 {
-                    int idx = _columnDefinitions.IndexOf(column);
-                    bool first = idx == 0 ? true : false;
-                    if (!first)
-                    {
-                        _rootGrid.ColumnDefinitions.Add(column.SplitterColumn);
-                    }             
-                    _rootGrid.ColumnDefinitions.Add(column.GridColumn);
-
-
-                    //move columns if the new column is not added at the end
-                    if(idx != _columnDefinitions.Count-1)
-                    {
-                        //Swap columns
-                        //rootGrid.ColumnDefinitions.Insert(idx * 2, column.GridColumn);
-                        //rootGrid.ColumnDefinitions.Insert(idx + 1, column.SplitterColumn);
-                    }
-
-                    if(column.HeaderControl != null)
-                    {
-                        AddHeader(column, idx * 2, !first);
-                    }
+                    _rootGrid.ColumnDefinitions.Add(column.SplitterColumn);
                 }
-                foreach (var child in _rootGrid.Children)
+                _rootGrid.ColumnDefinitions.Add(column.GridColumn);
+
+
+                //move columns if the new column is not added at the end
+                if (idx != _columnDefinitions.Count - 1)
                 {
-                    var rect = child as Rectangle;
-                    if(rect != null)
+                    //Swap columns
+                    //rootGrid.ColumnDefinitions.Insert(idx * 2, column.GridColumn);
+                    //rootGrid.ColumnDefinitions.Insert(idx + 1, column.SplitterColumn);
+                }
+
+                if (column.Content != null)
+                {
+                    AddHeader(column, idx * 2, !first);
+                }
+            }
+            foreach (var child in _rootGrid.Children)
+            {
+                var rect = child as Rectangle;
+                if (rect != null)
+                {
+                    if (Grid.GetRow(rect) > 0)
                     {
-                        if(Grid.GetRow(rect) > 0 )
-                        {
-                            Grid.SetColumnSpan(rect, _rootGrid.ColumnDefinitions.Count);
-                        }
+                        Grid.SetColumnSpan(rect, _rootGrid.ColumnDefinitions.Count);
                     }
                 }
             }
@@ -108,21 +102,26 @@ namespace Callisto.Controls
         {
             if(e.Action == NotifyCollectionChangedAction.Add)
             {
-                foreach (TreeGridItem item in e.NewItems)
-                {
-                    //Check that the number of columns matches the item fields
-#if DEBUG
-                    if(item.Fields.Count() > _columnDefinitions.Count)
-                    {
-                        throw new ArgumentException("Number of fields is different than numbers of the grid columns");
-                    }
-#endif
-                    //Create new row at the end
-                    var itemInfo = new ItemInfo(){IndentLevel=0};
-                    InsertNewRows(_rootGrid.RowDefinitions.Count, 1);
-                    UpdateRowForItem(item, _rootGrid.RowDefinitions.Count -2, itemInfo);
+                AddItems(e.NewItems.Cast<TreeGridItem>());
+            }
+        }
 
+        private void AddItems(IEnumerable<TreeGridItem> newItems)
+        {
+            foreach (TreeGridItem item in newItems)
+            {
+                //Check that the number of columns matches the item fields
+#if DEBUG
+                if (item.Fields.Count() > _columnDefinitions.Count)
+                {
+                    throw new ArgumentException("Number of fields is different than numbers of the grid columns");
                 }
+#endif
+                //Create new row at the end
+                var itemInfo = new ItemInfo() { IndentLevel = 0 };
+                InsertNewRows(_rootGrid.RowDefinitions.Count, 1);
+                UpdateRowForItem(item, _rootGrid.RowDefinitions.Count - 2, itemInfo);
+
             }
         }
 
@@ -151,15 +150,14 @@ namespace Callisto.Controls
                         indentwidth += 12;
                     }
                     sp.Margin = new Thickness(indentwidth, 0, 0, 0);
-                    sp.Children.Add(new ContentControl() { Content = fields[i], Margin = new Thickness(5,0,0,0) });
+                    fields[i].Margin = new Thickness(5,0,0,0);
+                    sp.Children.Add(fields[i]);
                     AddToGrid(index, i, sp);
                     _rowItemMap.Add(_rootGrid.RowDefinitions[index], info);
                 }
                 else
                 {
-                    var cc = new ContentControl();
-                    cc.Content = fields[i];
-                    AddToGrid(index, i, cc);
+                    AddToGrid(index, i, fields[i]);
                 }
             }
             AddSplitterForRow(index + 1);
@@ -288,9 +286,9 @@ namespace Callisto.Controls
                 AddSplitterForRow(1);
                 _headerRowAdded = true;
             }
-            _rootGrid.Children.Add(column.HeaderControl);
-            Grid.SetColumn(column.HeaderControl, index);
-            Grid.SetRow(column.HeaderControl, 0);
+            _rootGrid.Children.Add(column);
+            Grid.SetColumn(column, index);
+            Grid.SetRow(column, 0);
             //Add columns splitter
             if(addSplitter)
             {
@@ -349,17 +347,21 @@ namespace Callisto.Controls
 
         #endregion
 
-        public new Brush Background
-        {
-            get
-            {
-                return _rootGrid.Background;
-            }
-            set
-            {
-                _rootGrid.Background = value;
-            }
-        }
+        #region Grid properties
+
+        //public new Brush Background
+        //{
+        //    get
+        //    {
+        //        return _rootGrid.Background;
+        //    }
+        //    set
+        //    {
+        //        _rootGrid.Background = value;
+        //    }
+        //}
+
+#endregion
 
         #region Row settings
         public GridLength RowHeight{
@@ -506,10 +508,21 @@ namespace Callisto.Controls
             null); 
 
         #endregion
+        
         internal InteractionHelper Interaction { get; private set; }
         public void UpdateVisualState(bool useTransitions)
         {
             Interaction.UpdateVisualStateBase(useTransitions);
         }
+
+        #region helper classes
+
+        class ItemInfo
+        {
+            public object Root { get; set; }
+            public int IndentLevel { get; set; }
+        }
+
+        #endregion
     }
 }

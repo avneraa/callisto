@@ -10,10 +10,11 @@ using Windows.UI.Xaml.Shapes;
 
 namespace Callisto.Controls
 {
-    public class TreeGridColumn
+    public class TreeGridColumn : ContentControl
     {
         private static SolidColorBrush _darkGray = new SolidColorBrush(Colors.DarkGray);
-        private ContentControl _header;
+        //private ContentControl _header;
+
 
         private static DependencyProperty _widthProperty;
         public TreeGridColumn()
@@ -25,13 +26,13 @@ namespace Callisto.Controls
         internal ColumnDefinition GridColumn { get; set; }
         internal ColumnDefinition SplitterColumn { get; set; }
 
-        internal ContentControl HeaderControl
-        {
-            get 
-            {
-                return _header;
-            }
-        }
+        //internal ContentControl HeaderControl
+        //{
+        //    get 
+        //    {
+        //        return _header;
+        //    }
+        //}
 
         internal Rectangle Splitter = new Rectangle()
         {
@@ -66,36 +67,36 @@ namespace Callisto.Controls
             }
         }
 
-        public object Header
-        {
-            get
-            {
-                if (_header == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    return _header.Content;
-                }
-            }
-            set
-            {
-                if(_header == null)
-                {
-                    _header = new ContentControl();
-                }
-                if(value == null)
-                {
-                    _header = null;
-                }
-                else
-                {
-                    _header.Content = value;
-                }
+        //public object Header
+        //{
+        //    get
+        //    {
+        //        if (_header == null)
+        //        {
+        //            return null;
+        //        }
+        //        else
+        //        {
+        //            return _header.Content;
+        //        }
+        //    }
+        //    set
+        //    {
+        //        if(_header == null)
+        //        {
+        //            _header = new ContentControl();
+        //        }
+        //        if(value == null)
+        //        {
+        //            _header = null;
+        //        }
+        //        else
+        //        {
+        //            _header.Content = value;
+        //        }
 
-            }
-        }
+        //    }
+        //}
 
         /// <summary>
         /// Gets the calculated width of a ColumnDefinition element, or sets the GridLength value of a column that is defined by the ColumnDefinition.
@@ -103,7 +104,7 @@ namespace Callisto.Controls
         /// <returns>
         /// The GridLength that represents the width of the column. The default value is 1.0.
         /// </returns>
-        public GridLength Width
+        new public GridLength Width
         {
             get
             {
