@@ -16,41 +16,39 @@ namespace Callisto.TestApp.SamplePages
             PopulateDebuggerGrid();
         }
 
-        private void PopulateDebuggerGrid()
+        private void PopulateDebuggerGrid() 
         {
-            SampleGrid.ColumnDefinitions.Add(new TreeGridColumn() { Content = "Name" });
-            SampleGrid.ColumnDefinitions.Add(new TreeGridColumn() { Content = "Value" });
-            SampleGrid.ColumnDefinitions.Add(new TreeGridColumn() { Content = "Type" });
 
             var sampleData = new SampleParseTreeData();
             foreach (var parseNode in sampleData.RootNodes)
             {
-                var t = CreateTreeGridItem(parseNode);
+                var t = CreateTreeGridRow(parseNode);
                 SampleGrid.Items.Add(t);
             }
         }
 
-        private TreeGridItem CreateTreeGridItem(ParseNode parseNode)
+        private TreeGridRow CreateTreeGridRow(ParseNode parseNode)
         {
-            var item = new TreeGridItem(GetChildren) { Fields = GetCellsForParseNode(parseNode) };
-            item.HasChildren = parseNode.HasChildren;
-            item.Tag = parseNode;
-            return item;
+            var row = new TreeGridRow(GetChildren) ;
+            AddCellsForParseNode(row, parseNode);
+            row.HasChildren = parseNode.HasChildren;
+            row.Tag = parseNode;
+            return row;
         }
 
-        private List<TreeGridCell> GetCellsForParseNode(ParseNode parseNode)
+        private void AddCellsForParseNode(TreeGridRow row, ParseNode parseNode)
         {
-            var l = new List<TreeGridCell>();
-            l.Add(new TreeGridCell() { Content = parseNode.Name });
-            l.Add(new TreeGridCell() { Content = parseNode.Value });
-            l.Add(new TreeGridCell() { Content = parseNode.Type });
-            return l;
+
+            row.Cells.Add(new TreeGridCell() { Content = parseNode.Name });
+            row.Cells.Add(new TreeGridCell() { Content = parseNode.Value });
+            row.Cells.Add(new TreeGridCell() { Content = parseNode.Type });
+
         }
 
-        IEnumerable<TreeGridItem> GetChildren(TreeGridItem parent)
+        IEnumerable<TreeGridRow> GetChildren(TreeGridRow parent)
         {
             var pn = (ParseNode)parent.Tag;
-            return pn.Children.Select((c) => CreateTreeGridItem(c));
+            return pn.Children.Select((c) => CreateTreeGridRow(c));
         }
 
 

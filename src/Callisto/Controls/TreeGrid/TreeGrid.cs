@@ -1,40 +1,55 @@
-﻿using Callisto.Controls.Common;
+﻿﻿//
+// Copyright (c) 2012 Tim Heuer
+//
+// Licensed under the Microsoft Public License (Ms-PL) (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://opensource.org/licenses/Ms-PL.html
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+using Callisto.Controls.Common;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using System.Collections.Specialized;
 using Windows.UI;
 using Windows.UI.Xaml.Shapes;
-using Windows.UI.Xaml.Media.Imaging;
-using Windows.Foundation;
+using Windows.UI.Xaml.Markup;
 
 
 // The Templated Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234235
 
 namespace Callisto.Controls
 {
-    public sealed class TreeGrid : Control, IUpdateVisualState
+
+    public sealed class TreeGrid : Control //, IUpdateVisualStatecolumn.splitter
     {
         
         private ScrollViewer _root;
         private Grid _rootGrid = new Grid();
         private ObservableCollection<TreeGridColumn> _columnDefinitions = new ObservableCollection<TreeGridColumn>();
-        private ObservableCollection<TreeGridItem> _items = new ObservableCollection<TreeGridItem>();
+        private ObservableCollection<TreeGridRow> _items = new ObservableCollection<TreeGridRow>();
         private Dictionary<RowDefinition, ItemInfo> _rowItemMap = new Dictionary<RowDefinition, ItemInfo>(); 
         private GridLength _rowHeight;
         private double _rowSplitterHeight = 1;
         private Brush _rowSplitterBrush = new SolidColorBrush(Colors.Blue);
         private double _rowSplitterOpacity = 1;
         private bool _headerRowAdded = false;
-        
+
+        #region CTOR
+
         public TreeGrid()
         {
             this.DefaultStyleKey = typeof(TreeGrid);
@@ -48,6 +63,8 @@ namespace Callisto.Controls
             _root = GetTemplateChild("RootScrollViewer") as ScrollViewer;
             _root.Content = _rootGrid;
         }
+
+        #endregion
 
         #region CollectionChanged event handlers
 
@@ -64,37 +81,18 @@ namespace Callisto.Controls
             foreach (var column in newColumns)
             {
                 int idx = _columnDefinitions.IndexOf(column);
-                bool first = idx == 0 ? true : false;
+                bool first = idx == 0;
                 if (!first)
                 {
+                    _rootGrid.Children.Add(column.Splitter);
+                    column.SplitterColumn.Width = new GridLength(column.Splitter.ActualWidth);
                     _rootGrid.ColumnDefinitions.Add(column.SplitterColumn);
+                    Grid.SetColumn(column.Splitter, idx * 2 - 1);
+                    Grid.SetRow(column.Splitter, 0);
+                    Grid.SetRowSpan(column.Splitter, int.MaxValue);
                 }
+
                 _rootGrid.ColumnDefinitions.Add(column.GridColumn);
-
-
-                //move columns if the new column is not added at the end
-                if (idx != _columnDefinitions.Count - 1)
-                {
-                    //Swap columns
-                    //rootGrid.ColumnDefinitions.Insert(idx * 2, column.GridColumn);
-                    //rootGrid.ColumnDefinitions.Insert(idx + 1, column.SplitterColumn);
-                }
-
-                if (column.Content != null)
-                {
-                    AddHeader(column, idx * 2, !first);
-                }
-            }
-            foreach (var child in _rootGrid.Children)
-            {
-                var rect = child as Rectangle;
-                if (rect != null)
-                {
-                    if (Grid.GetRow(rect) > 0)
-                    {
-                        Grid.SetColumnSpan(rect, _rootGrid.ColumnDefinitions.Count);
-                    }
-                }
             }
         }
 
@@ -102,17 +100,17 @@ namespace Callisto.Controls
         {
             if(e.Action == NotifyCollectionChangedAction.Add)
             {
-                AddItems(e.NewItems.Cast<TreeGridItem>());
+                AddRows(e.NewItems.Cast<TreeGridRow>());
             }
         }
 
-        private void AddItems(IEnumerable<TreeGridItem> newItems)
+        private void AddRows(IEnumerable<TreeGridRow> newRows)
         {
-            foreach (TreeGridItem item in newItems)
+            foreach (TreeGridRow item in newRows)
             {
                 //Check that the number of columns matches the item fields
 #if DEBUG
-                if (item.Fields.Count() > _columnDefinitions.Count)
+                if (item.Cells.Count() > _columnDefinitions.Count)
                 {
                     throw new ArgumentException("Number of fields is different than numbers of the grid columns");
                 }
@@ -125,10 +123,10 @@ namespace Callisto.Controls
             }
         }
 
-        private void UpdateRowForItem(TreeGridItem item, int index, ItemInfo info)
+        private void UpdateRowForItem(TreeGridRow item, int index, ItemInfo info)
         {
             //Populate columns
-            var fields = item.Fields.ToList();
+            var fields = item.Cells.ToList();
             for (int i = 0; i < fields.Count; i++)
             {
                 if(i == 0)
@@ -160,14 +158,14 @@ namespace Callisto.Controls
                     AddToGrid(index, i, fields[i]);
                 }
             }
-            AddSplitterForRow(index + 1);
+            AddSplitterForRow(index + 1, item);
         }
 
-        private void AddToGrid(int index, int i, FrameworkElement item)
+        private void AddToGrid(int row, int column, FrameworkElement item)
         {
             _rootGrid.Children.Add(item);
-            Grid.SetColumn(item, i * 2);
-            Grid.SetRow(item, index);
+            Grid.SetColumn(item, column * 2);
+            Grid.SetRow(item, row);
         }
 
         void row_Tapped(object sender, TappedRoutedEventArgs e)
@@ -176,7 +174,7 @@ namespace Callisto.Controls
             TreeGridIcon icon = (TreeGridIcon)sender;
             var tag = (ItemInfo)icon.Tag;
             var sp = (StackPanel)tag.Root;
-            var item = (TreeGridItem) sp.Tag;
+            var item = (TreeGridRow) sp.Tag;
             //Cache children
 
             var currentIndex = Grid.GetRow(sp);
@@ -277,27 +275,34 @@ namespace Callisto.Controls
         }
 
         #endregion
-        private void AddHeader(TreeGridColumn column, int index, bool addSplitter)
+
+        #region Header row
+        private void AddHeader(TreeGridRow row)
         {
-            //Add header
-            if (!_headerRowAdded)
+            if (_headerRowAdded)
             {
-                InsertNewRows(0,1); //Add Header row
-                AddSplitterForRow(1);
+                throw new InvalidOperationException("Header already exists");
+            }
+            if (row != null)
+            {
+
+                InsertNewRows(0, 1); //Add Header row
+                UpdateExistingItems(0, 1);
+
+                var fields = row.Cells.ToList();
+                for (int i = 0; i < fields.Count; i++)
+                {
+                    AddToGrid(0, i, fields[i]);
+                }
+
+                AddSplitterForRow(1, row);
                 _headerRowAdded = true;
             }
-            _rootGrid.Children.Add(column);
-            Grid.SetColumn(column, index);
-            Grid.SetRow(column, 0);
-            //Add columns splitter
-            if(addSplitter)
-            {
-                _rootGrid.Children.Add(column.Splitter);
-                Grid.SetColumn(column.Splitter, index - 1);
-                Grid.SetRow(column.Splitter, 0);
-                Grid.SetRowSpan(column.Splitter, int.MaxValue);
-            }
         }
+
+        #endregion
+
+        #region Insert new rows
         private void InsertNewRows(int currentIndex, int count)
         {
             var index = currentIndex;
@@ -311,25 +316,27 @@ namespace Callisto.Controls
                 r= new RowDefinition(){Height = new GridLength(_rowSplitterHeight)};
                 _rootGrid.RowDefinitions.Insert(index,r);
                 index++;
-
 			}
         }
-        private void AddSplitterForRow(int index)
+        private void AddSplitterForRow(int index, TreeGridRow row)
         {
-            var rect = new Rectangle()
-            {
-                Height = _rowSplitterHeight,
-                Fill = _rowSplitterBrush,
-                Opacity = _rowSplitterOpacity
-            };
-            _rootGrid.Children.Add(rect);
-            Grid.SetRow(rect, index);
-            Grid.SetColumn(rect, 0);
-            Grid.SetColumnSpan(rect, int.MaxValue);
+            //var rect = new Rectangle()
+            //{
+            //    Height = _rowSplitterHeight,
+            //    Fill = _rowSplitterBrush,
+            //    Opacity = _rowSplitterOpacity
+            //};
+            _rootGrid.Children.Add(row.Splitter);
+            _rootGrid.RowDefinitions[index].Height = new GridLength(row.Splitter.ActualHeight);
+            Grid.SetRow(row.Splitter, index);
+            Grid.SetColumn(row.Splitter, 0);
+            Grid.SetColumnSpan(row.Splitter, int.MaxValue);
         }
 
-        #region Row and Column collections
+        #endregion
 
+        #region Row and Column collections
+        
         public ObservableCollection<TreeGridColumn> ColumnDefinitions
         {
             get
@@ -337,7 +344,7 @@ namespace Callisto.Controls
                 return _columnDefinitions;
             }
         }
-        public ObservableCollection<TreeGridItem> Items
+        public ObservableCollection<TreeGridRow> Items
         {
             get 
             {
@@ -347,67 +354,24 @@ namespace Callisto.Controls
 
         #endregion
 
-        #region Grid properties
+        #region Header row
 
-        //public new Brush Background
-        //{
-        //    get
-        //    {
-        //        return _rootGrid.Background;
-        //    }
-        //    set
-        //    {
-        //        _rootGrid.Background = value;
-        //    }
-        //}
-
-#endregion
-
-        #region Row settings
-        public GridLength RowHeight{
-            get{
-                return _rowHeight;
-            }
-            set{
-                _rowHeight = value;
-            }
-        }
-
-        public double RowSplitterHeight
+        public TreeGridRow Header
         {
-            get
-            {
-                return _rowSplitterHeight;
-            }
-            set
-            {
-                _rowSplitterHeight = value;
-            }
-        }
-
-        public Brush RowSplitterBrush
-        {
-            get
-            {
-                return _rowSplitterBrush;
-            }
+            get { return (TreeGridRow)GetValue(HeaderProperty); }
             set 
-            {
-                _rowSplitterBrush = value;
+            { 
+                SetValue(HeaderProperty, value);
+                AddHeader(value);
             }
         }
 
-        public double RowSplitterOpacity
-        {
-            get
-            {
-                return _rowSplitterOpacity;
-            }
-            set
-            {
-                _rowSplitterOpacity = value;
-            }
-        }
+        public static readonly DependencyProperty HeaderProperty =
+            DependencyProperty.Register(
+                "Header",
+                typeof(TreeGridRow),
+                typeof(TreeGridColumn),
+                null);
 
         #endregion
 
@@ -448,7 +412,7 @@ namespace Callisto.Controls
 
 #endregion
 
-        #region Collapsed and Expanded images
+        #region Collapsed and Expanded Icons
 
         public string CollapsedIcon
         {
@@ -488,7 +452,7 @@ namespace Callisto.Controls
 
         #endregion
 
-        #region Indent Size
+        #region Settings
         public int IndentSize
         {
             get
@@ -501,19 +465,52 @@ namespace Callisto.Controls
             }
         }
 
-        public static readonly DependencyProperty IndentSizeProperty = DependencyProperty.Register(
-            "IndentSize",
-            typeof(int),
-            typeof(TreeGrid),
-            null); 
+        public static readonly DependencyProperty IndentSizeProperty = 
+            DependencyProperty.Register(
+                "IndentSize",
+                typeof(int),
+                typeof(TreeGrid),
+                null);
+
+        public bool AllowResizeColumns
+        {
+            get {return (bool)GetValue(AllowResizeColumnsProperty);}
+            set {SetValue(AllowResizeColumnsProperty, value);}
+        }
+
+        public static readonly DependencyProperty AllowResizeColumnsProperty =
+            DependencyProperty.Register(
+                "AllowResizeColumns",
+                typeof(bool),
+                typeof(TreeGrid), null);
+
+
+
+        public bool AllowResizeRows
+        {
+            get
+            {
+                return (bool)GetValue(AllowResizeRowsProperty);
+            }
+            set
+            {
+                SetValue(AllowResizeRowsProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty AllowResizeRowsProperty =
+            DependencyProperty.Register(
+                "AllowResizeRows",
+                typeof(bool),
+                typeof(TreeGrid), null);
 
         #endregion
-        
-        internal InteractionHelper Interaction { get; private set; }
-        public void UpdateVisualState(bool useTransitions)
-        {
-            Interaction.UpdateVisualStateBase(useTransitions);
-        }
+
+        //internal InteractionHelper Interaction { get; private set; }
+        //public void UpdateVisualState(bool useTransitions)
+        //{
+        //    Interaction.UpdateVisualStateBase(useTransitions);
+        //}
 
         #region helper classes
 
@@ -524,5 +521,7 @@ namespace Callisto.Controls
         }
 
         #endregion
+
+
     }
 }

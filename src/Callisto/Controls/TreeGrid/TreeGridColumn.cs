@@ -1,4 +1,20 @@
-﻿using System;
+﻿﻿//
+// Copyright (c) 2012 Tim Heuer
+//
+// Licensed under the Microsoft Public License (Ms-PL) (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://opensource.org/licenses/Ms-PL.html
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,88 +31,24 @@ namespace Callisto.Controls
         private static SolidColorBrush _darkGray = new SolidColorBrush(Colors.DarkGray);
         //private ContentControl _header;
 
-
-        private static DependencyProperty _widthProperty;
         public TreeGridColumn()
         {
             this.GridColumn = new ColumnDefinition();
             this.SplitterColumn = new ColumnDefinition();
-            this.SplitterWidth = 3;
+            this.SplitterWidth = 1;
         }
         internal ColumnDefinition GridColumn { get; set; }
-        internal ColumnDefinition SplitterColumn { get; set; }
+        internal ColumnDefinition SplitterColumn;
 
-        //internal ContentControl HeaderControl
-        //{
-        //    get 
-        //    {
-        //        return _header;
-        //    }
-        //}
 
-        internal Rectangle Splitter = new Rectangle()
+        internal GridSplitter Splitter = new GridSplitter()
         {
-            Fill = _darkGray,
-            Opacity = 0.5,
-            Stroke = _darkGray
+            Kind = SplitterKind.Column
         };
 
-        public Brush SplitterColor
-        {
-            get
-            {
-                return Splitter.Fill;
-            }
-            set
-            {
-                Splitter.Fill = value;
-                Splitter.Stroke = value;
-            }
-        }
 
-        public double SplitterWidth
-        {
-            get
-            {
-                return Splitter.Width;
-            }
-            set
-            {
-                Splitter.Width = value;
-                SplitterColumn.Width = new GridLength(Splitter.Width, GridUnitType.Pixel);
-            }
-        }
+        #region Width 
 
-        //public object Header
-        //{
-        //    get
-        //    {
-        //        if (_header == null)
-        //        {
-        //            return null;
-        //        }
-        //        else
-        //        {
-        //            return _header.Content;
-        //        }
-        //    }
-        //    set
-        //    {
-        //        if(_header == null)
-        //        {
-        //            _header = new ContentControl();
-        //        }
-        //        if(value == null)
-        //        {
-        //            _header = null;
-        //        }
-        //        else
-        //        {
-        //            _header.Content = value;
-        //        }
-
-        //    }
-        //}
 
         /// <summary>
         /// Gets the calculated width of a ColumnDefinition element, or sets the GridLength value of a column that is defined by the ColumnDefinition.
@@ -115,23 +67,104 @@ namespace Callisto.Controls
                 GridColumn.Width = value;
             }
         }
-        /// <summary>
-        /// Identifies the Width dependency property.
-        /// </summary>
-        public static DependencyProperty WidthProperty
+
+        //new public static readonly DependencyProperty WidthProperty =
+        //    DependencyProperty.Register(
+        //        "Width",
+        //        typeof(GridLength),
+        //        typeof(TreeGridColumn),
+        //        null);
+
+        #endregion
+
+
+
+        #region Splitter properties
+        public Brush SplitterBrush
         {
             get
             {
-                if (_widthProperty == null)
-                {
-                    _widthProperty = DependencyProperty.Register(
-                        "Width",
-                        typeof(GridLength),
-                        typeof(TreeGridColumn),
-                        new PropertyMetadata(1.0));
-                }
-                return _widthProperty;
+                return (Brush)GetValue(SplitterBrushProperty);
+            }
+            set
+            {
+                SetValue(SplitterBrushProperty, value);
+                Splitter.Background = (Brush)GetValue(SplitterBrushProperty);
             }
         }
+
+        public static readonly DependencyProperty SplitterBrushProperty =
+            DependencyProperty.Register(
+                "SplitterBrush",
+                typeof(Brush),
+                typeof(TreeGridColumn),
+                null);
+
+        public double SplitterOpacity
+        {
+            get
+            {
+                return (double)GetValue(SplitterOpacityProperty);
+            }
+            set
+            {
+                SetValue(SplitterOpacityProperty, value);
+                Splitter.Opacity = (double)GetValue(SplitterOpacityProperty);
+            }
+        }
+
+        public static readonly DependencyProperty SplitterOpacityProperty =
+            DependencyProperty.Register(
+                "SplitterOpacity",
+                typeof(double),
+                typeof(TreeGridColumn),
+                null);
+
+        public double SplitterWidth
+        {
+            get
+            {
+                return (double)GetValue(SplitterWidthProperty);
+            }
+            set
+            {
+                SetValue(SplitterWidthProperty, value);
+                Splitter.Width = (double)GetValue(SplitterWidthProperty);
+                SplitterColumn.Width = new GridLength(Splitter.ActualWidth, GridUnitType.Pixel);
+            }
+        }
+
+        public static readonly DependencyProperty SplitterWidthProperty =
+            DependencyProperty.Register(
+                "SplitterWidth",
+                typeof(double),
+                typeof(TreeGridColumn),
+                null
+            );
+        
+
+        public double SplitterPadding
+        {
+            get
+            {
+                return (double)GetValue(SplitterPaddingProperty);
+            }
+            set
+            {
+                SetValue(SplitterPaddingProperty, value);
+                Splitter.Padding = new Thickness(value / 2, 0, value / 2, 0);
+            }
+        }
+
+        public static readonly DependencyProperty SplitterPaddingProperty =
+            DependencyProperty.Register(
+                "SplitterPadding",
+                typeof(double),
+                typeof(TreeGridColumn),
+                null
+           );
+        #endregion
+
+
     }
 }
