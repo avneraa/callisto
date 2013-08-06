@@ -26,16 +26,17 @@ using Windows.UI.Xaml.Shapes;
 
 namespace Callisto.Controls
 {
-    public class TreeGridColumn : ContentControl
+    public class TreeGridColumn : Control
     {
         private static SolidColorBrush _darkGray = new SolidColorBrush(Colors.DarkGray);
         //private ContentControl _header;
 
         public TreeGridColumn()
         {
-            this.GridColumn = new ColumnDefinition();
-            this.SplitterColumn = new ColumnDefinition();
+            this.GridColumn = new ColumnDefinition()     ;
+            this.SplitterColumn = new ColumnDefinition() { Width = GridLength.Auto };
             this.SplitterWidth = 1;
+            isDefaultWidth = true;
         }
         internal ColumnDefinition GridColumn { get; set; }
         internal ColumnDefinition SplitterColumn;
@@ -49,12 +50,13 @@ namespace Callisto.Controls
 
         #region Width 
 
+        internal bool isDefaultWidth { get; set; }
 
         /// <summary>
         /// Gets the calculated width of a ColumnDefinition element, or sets the GridLength value of a column that is defined by the ColumnDefinition.
         /// </summary>
         /// <returns>
-        /// The GridLength that represents the width of the column. The default value is 1.0.
+        /// The GridLength that represents the width of the column. The default value is 1.0*.
         /// </returns>
         new public GridLength Width
         {
@@ -64,6 +66,7 @@ namespace Callisto.Controls
             }
             set
             {
+                isDefaultWidth = false;
                 GridColumn.Width = value;
             }
         }
@@ -130,7 +133,6 @@ namespace Callisto.Controls
             {
                 SetValue(SplitterWidthProperty, value);
                 Splitter.Width = (double)GetValue(SplitterWidthProperty);
-                SplitterColumn.Width = new GridLength(Splitter.ActualWidth, GridUnitType.Pixel);
             }
         }
 

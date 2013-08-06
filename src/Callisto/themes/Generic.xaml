@@ -1537,6 +1537,14 @@ limitations under the License.-->
             </Setter.Value>
         </Setter>
     </Style>
+    
+    <!--<Style TargetType="local:TreeGridRow">
+        <Setter Property="SplitterBrush" Value="Black" />
+        <Setter Property="SplitterOpacity" Value="0.5" />
+        <Setter Property="SplitterPadding" Value="0,2,0,2" />
+        <Setter Property="SplitterHeight" Value="1" />
+        
+    </Style>-->
 
     <Style TargetType="local:TreeGridIcon">
         <Setter Property="FontFamily" Value="Segoe UI Symbol" />

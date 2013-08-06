@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -79,7 +80,7 @@ namespace Callisto.Controls
 
         #region Splitter properties
 
-        internal GridSplitter Splitter = new GridSplitter() { Kind = SplitterKind.Row, Padding = new Thickness(0,0,0,0), Height = 0 };
+        internal GridSplitter Splitter = new GridSplitter() { Kind = SplitterKind.Row, Height=1, Padding=new Thickness(0,2,0,2), Background= new SolidColorBrush(Colors.Black), Opacity=0.5 };
         public double SplitterHeight
         {
             get
@@ -131,15 +132,15 @@ namespace Callisto.Controls
             }
         }
 
-        public double SplitterPadding
+        public Thickness SplitterPadding
         {
             get
             {
-                return _splitterPadding;
+                return Splitter.Padding;
             }
             set
             {
-                Splitter.Padding = new Thickness(0, value / 2, 0, value / 2);
+                Splitter.Padding = value; //new Thickness(0, value / 2, 0, value / 2);
             }
         }
 

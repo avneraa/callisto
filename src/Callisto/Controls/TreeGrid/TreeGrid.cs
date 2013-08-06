@@ -62,6 +62,19 @@ namespace Callisto.Controls
             base.OnApplyTemplate();
             _root = GetTemplateChild("RootScrollViewer") as ScrollViewer;
             _root.Content = _rootGrid;
+            ResizeColumns();
+        }
+
+        private void ResizeColumns()
+        {
+            foreach (var column in _columnDefinitions)
+            {
+                if (column.isDefaultWidth)
+                {
+                    //column.GridColumn.Width = GridLength.Auto;
+                    //column.GridColumn.Width = new GridLength(1 / _columnDefinitions.Count, GridUnitType.Star);
+                }
+            }
         }
 
         #endregion
@@ -91,7 +104,6 @@ namespace Callisto.Controls
                     Grid.SetRow(column.Splitter, 0);
                     Grid.SetRowSpan(column.Splitter, int.MaxValue);
                 }
-
                 _rootGrid.ColumnDefinitions.Add(column.GridColumn);
             }
         }
@@ -309,23 +321,17 @@ namespace Callisto.Controls
             for (int i = 0; i < count; i++)
 			{
                 //item row
-                var r = new RowDefinition() {Height = _rowHeight};
+                var r = new RowDefinition() { Height = GridLength.Auto };
                 _rootGrid.RowDefinitions.Insert(index,r);
                 index++;
                 //splitter row
-                r= new RowDefinition(){Height = new GridLength(_rowSplitterHeight)};
+                r = new RowDefinition() { Height = GridLength.Auto };
                 _rootGrid.RowDefinitions.Insert(index,r);
                 index++;
 			}
         }
         private void AddSplitterForRow(int index, TreeGridRow row)
         {
-            //var rect = new Rectangle()
-            //{
-            //    Height = _rowSplitterHeight,
-            //    Fill = _rowSplitterBrush,
-            //    Opacity = _rowSplitterOpacity
-            //};
             _rootGrid.Children.Add(row.Splitter);
             _rootGrid.RowDefinitions[index].Height = new GridLength(row.Splitter.ActualHeight);
             Grid.SetRow(row.Splitter, index);
@@ -358,7 +364,10 @@ namespace Callisto.Controls
 
         public TreeGridRow Header
         {
-            get { return (TreeGridRow)GetValue(HeaderProperty); }
+            get 
+            { 
+                return (TreeGridRow)GetValue(HeaderProperty); 
+            }
             set 
             { 
                 SetValue(HeaderProperty, value);
@@ -370,7 +379,7 @@ namespace Callisto.Controls
             DependencyProperty.Register(
                 "Header",
                 typeof(TreeGridRow),
-                typeof(TreeGridColumn),
+                typeof(TreeGrid),
                 null);
 
         #endregion

@@ -12,12 +12,12 @@
             <!-- BUGBUG fix the issue where the last line is covered by the scroller when these are set Height="150" Width="190" -->
             <callisto:TreeGrid x:Name="SampleGrid" Background="White" >
                 <callisto:TreeGrid.ColumnDefinitions>
-                    <callisto:TreeGridColumn SplitterWidth="1" SplitterBrush="LightGray" Content="Name" SplitterOpacity="0.5" />
-                    <callisto:TreeGridColumn SplitterWidth="1" SplitterBrush="LightGray" Content="Value" SplitterOpacity="0.5" SplitterPadding="6" />
-                    <callisto:TreeGridColumn SplitterWidth="1" SplitterBrush="LightGray" Content="Type" SplitterOpacity="0.5" SplitterPadding="6"/>
+                    <callisto:TreeGridColumn SplitterWidth="1" SplitterBrush="LightGray"  SplitterOpacity="0.5" />
+                    <callisto:TreeGridColumn SplitterWidth="1" SplitterBrush="LightGray"  SplitterOpacity="0.5" SplitterPadding="6" />
+                    <callisto:TreeGridColumn SplitterWidth="1" SplitterBrush="LightGray" SplitterOpacity="0.5" SplitterPadding="6"/>
                 </callisto:TreeGrid.ColumnDefinitions>
                 <callisto:TreeGrid.Header>
-                    <callisto:TreeGridRow SplitterBrush="Orange" SplitterHeight="1" SplitterOpacity="0.5" SplitterPadding="2" >
+                    <callisto:TreeGridRow SplitterBrush="Orange" SplitterHeight="1" SplitterOpacity="0.5" SplitterPadding="0,2,0,2"  >
                         <callisto:TreeGridRow.Cells>
                             <callisto:TreeGridCell Content="Name"/>
                             <callisto:TreeGridCell Content="Value" />

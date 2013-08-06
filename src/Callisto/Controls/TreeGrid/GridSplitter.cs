@@ -216,92 +216,95 @@ namespace Callisto.Controls
             double totalStarColumnsWidth = 0;
             double starColumnsAvailableWidth = grid.ActualWidth;
 
-            if (leftColumnGridUnitType == GridUnitType.Star || rightColumnGridUnitType == GridUnitType.Star)
-            {
-                foreach (var columnDefinition in grid.ColumnDefinitions)
-                {
-                    if (columnDefinition.Width.GridUnitType == GridUnitType.Star)
-                    {
-                        totalStarColumnsWidth += columnDefinition.Width.Value;
-                    }
-                    else
-                    {
-                        starColumnsAvailableWidth -= columnDefinition.ActualWidth;
-                    }
-                }
-            }
+            rightColumnDefinition.Width = new GridLength(newRightColumnActualWidth, GridUnitType.Pixel);
+            leftColumnDefinition.Width = new GridLength(newLeftColumnActualWidth, GridUnitType.Pixel);
 
-            if (leftColumnGridUnitType == GridUnitType.Star)
-            {
-                if (rightColumnGridUnitType == GridUnitType.Star)
-                {
-                    // If both columns are star columns
-                    // - totalStarColumnsWidth won't change and
-                    // as much as one of the columns grows
-                    // - the other column will shrink by the same value.
+            //if (leftColumnGridUnitType == GridUnitType.Star || rightColumnGridUnitType == GridUnitType.Star)
+            //{
+            //    foreach (var columnDefinition in grid.ColumnDefinitions)
+            //    {
+            //        if (columnDefinition.Width.GridUnitType == GridUnitType.Star)
+            //        {
+            //            totalStarColumnsWidth += columnDefinition.Width.Value;
+            //        }
+            //        else
+            //        {
+            //            starColumnsAvailableWidth -= columnDefinition.ActualWidth;
+            //        }
+            //    }
+            //}
 
-                    // If there is no width available to star columns
-                    // - we can't resize two of them.
-                    if (starColumnsAvailableWidth < 1)
-                    {
-                        return;
-                    }
+            //if (leftColumnGridUnitType == GridUnitType.Star)
+            //{
+            //    if (rightColumnGridUnitType == GridUnitType.Star)
+            //    {
+            //        // If both columns are star columns
+            //        // - totalStarColumnsWidth won't change and
+            //        // as much as one of the columns grows
+            //        // - the other column will shrink by the same value.
 
-                    var oldStarWidth = leftColumnDefinition.Width.Value;
-                    var newStarWidth = Math.Max(0, totalStarColumnsWidth * newLeftColumnActualWidth / starColumnsAvailableWidth);
-                    leftColumnDefinition.Width = new GridLength(newStarWidth, GridUnitType.Star);
+            //        // If there is no width available to star columns
+            //        // - we can't resize two of them.
+            //        if (starColumnsAvailableWidth < 1)
+            //        {
+            //            return;
+            //        }
 
-                    rightColumnDefinition.Width = new GridLength(Math.Max(0, rightColumnDefinition.Width.Value - newStarWidth + oldStarWidth), GridUnitType.Star);
-                }
-                else
-                {
-                    var newStarColumnsAvailableWidth =
-                        starColumnsAvailableWidth +
-                        rightColumnActualWidth -
-                        newRightColumnActualWidth;
+            //        var oldStarWidth = leftColumnDefinition.Width.Value;
+            //        var newStarWidth = Math.Max(0, totalStarColumnsWidth * newLeftColumnActualWidth / starColumnsAvailableWidth);
+            //        leftColumnDefinition.Width = new GridLength(newStarWidth, GridUnitType.Star);
 
-                    if (newStarColumnsAvailableWidth - newLeftColumnActualWidth >= 1)
-                    {
-                        var newStarWidth = Math.Max(
-                            0,
-                            (totalStarColumnsWidth -
-                             leftColumnDefinition.Width.Value) *
-                            newLeftColumnActualWidth /
-                            (newStarColumnsAvailableWidth - newLeftColumnActualWidth));
+            //        rightColumnDefinition.Width = new GridLength(Math.Max(0, rightColumnDefinition.Width.Value - newStarWidth + oldStarWidth), GridUnitType.Star);
+            //    }
+            //    else
+            //    {
+            //        var newStarColumnsAvailableWidth =
+            //            starColumnsAvailableWidth +
+            //            rightColumnActualWidth -
+            //            newRightColumnActualWidth;
 
-                        leftColumnDefinition.Width =
-                            new GridLength(newStarWidth, GridUnitType.Star);
-                    }
-                }
-            }
-            else
-            {
-                leftColumnDefinition.Width = new GridLength(newLeftColumnActualWidth, GridUnitType.Pixel);
-            }
+            //        if (newStarColumnsAvailableWidth - newLeftColumnActualWidth >= 1)
+            //        {
+            //            var newStarWidth = Math.Max(
+            //                0,
+            //                (totalStarColumnsWidth -
+            //                 leftColumnDefinition.Width.Value) *
+            //                newLeftColumnActualWidth /
+            //                (newStarColumnsAvailableWidth - newLeftColumnActualWidth));
 
-            if (rightColumnGridUnitType == GridUnitType.Star)
-            {
-                if (leftColumnGridUnitType != GridUnitType.Star)
-                {
-                    var newStarColumnsAvailableWidth = starColumnsAvailableWidth + leftColumnActualWidth - newLeftColumnActualWidth;
+            //            leftColumnDefinition.Width =
+            //                new GridLength(newStarWidth, GridUnitType.Star);
+            //        }
+            //    }
+            //}
+            //else
+            //{
+            //    leftColumnDefinition.Width = new GridLength(newLeftColumnActualWidth, GridUnitType.Pixel);
+            //}
 
-                    if (newStarColumnsAvailableWidth - newRightColumnActualWidth >= 1)
-                    {
-                        var newStarWidth = Math.Max(
-                            0,
-                            (totalStarColumnsWidth -
-                             rightColumnDefinition.Width.Value) *
-                            newRightColumnActualWidth /
-                            (newStarColumnsAvailableWidth - newRightColumnActualWidth));
-                        rightColumnDefinition.Width = new GridLength(newStarWidth, GridUnitType.Star);
-                    }
-                }
-                // else handled in the left column width calculation block
-            }
-            else
-            {
-                rightColumnDefinition.Width = new GridLength(newRightColumnActualWidth, GridUnitType.Pixel);
-            }
+            //if (rightColumnGridUnitType == GridUnitType.Star)
+            //{
+            //    if (leftColumnGridUnitType != GridUnitType.Star)
+            //    {
+            //        var newStarColumnsAvailableWidth = starColumnsAvailableWidth + leftColumnActualWidth - newLeftColumnActualWidth;
+
+            //        if (newStarColumnsAvailableWidth - newRightColumnActualWidth >= 1)
+            //        {
+            //            var newStarWidth = Math.Max(
+            //                0,
+            //                (totalStarColumnsWidth -
+            //                 rightColumnDefinition.Width.Value) *
+            //                newRightColumnActualWidth /
+            //                (newStarColumnsAvailableWidth - newRightColumnActualWidth));
+            //            rightColumnDefinition.Width = new GridLength(newStarWidth, GridUnitType.Star);
+            //        }
+            //    }
+            //    // else handled in the left column width calculation block
+            //}
+            //else
+            //{
+            //    rightColumnDefinition.Width = new GridLength(newRightColumnActualWidth, GridUnitType.Pixel);
+            //}
 
             //grid.EndInit();
         }
@@ -519,7 +522,8 @@ namespace Callisto.Controls
             {
                 if (Kind == SplitterKind.Row)
                 {
-                    return _rect.Height + _border.BorderThickness.Top * 2;
+                    var borderTop = _border.BorderThickness.Top == double.NaN ? 0 : _border.BorderThickness.Top;
+                    return _rect.Height + borderTop * 2;
                 }
                 else
                 {
