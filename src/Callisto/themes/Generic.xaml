@@ -48,6 +48,8 @@ limitations under the License.-->
             <x:Double x:Key="CustomDialogBorderThemeThickness">0</x:Double>
             <SolidColorBrush x:Key="CustomDialogBorderThemeBrush">#FFFFFFFF</SolidColorBrush>
             <SolidColorBrush x:Key="CustomDialogBackgroundThemeBrush">#FFFFFFFF</SolidColorBrush>
+            <SolidColorBrush x:Key="TreeGridIconBorderBrash">Black</SolidColorBrush>
+            <SolidColorBrush x:Key="TreeGridIconBackgroundBrash">White</SolidColorBrush>
         </ResourceDictionary>
         <ResourceDictionary x:Key="Light">
             <SolidColorBrush x:Key="FlyoutBorderBrush">#FF212121</SolidColorBrush>
@@ -76,6 +78,8 @@ limitations under the License.-->
             <x:Double x:Key="CustomDialogBorderThemeThickness">0</x:Double>
             <SolidColorBrush x:Key="CustomDialogBorderThemeBrush">#FFFFFFFF</SolidColorBrush>
             <SolidColorBrush x:Key="CustomDialogBackgroundThemeBrush">#FF000000</SolidColorBrush>
+            <SolidColorBrush x:Key="TreeGridIconBorderBrash">Black</SolidColorBrush>
+            <SolidColorBrush x:Key="TreeGridIconBackgroundBrash">White</SolidColorBrush>
         </ResourceDictionary>
         <ResourceDictionary x:Key="HighContrast">
             <SolidColorBrush x:Key="FlyoutBorderBrush" Color="{StaticResource SystemColorButtonTextColor}" />
@@ -104,6 +108,8 @@ limitations under the License.-->
             <x:Double x:Key="CustomDialogBorderThemeThickness">1</x:Double>
             <SolidColorBrush x:Key="CustomDialogBorderThemeBrush">#FFFFFFFF</SolidColorBrush>
             <SolidColorBrush x:Key="CustomDialogBackgroundThemeBrush" Color="{StaticResource SystemColorButtonFaceColor}" />
+            <SolidColorBrush x:Key="TreeGridIconBorderBrash">#FFFFFFFF</SolidColorBrush>
+            <SolidColorBrush x:Key="TreeGridIconBackgroundBrash" Color="{StaticResource SystemColorButtonFaceColor}"></SolidColorBrush>
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 
@@ -1549,11 +1555,12 @@ limitations under the License.-->
     <Style TargetType="local:TreeGridIcon">
         <Setter Property="FontFamily" Value="Segoe UI Symbol" />
         <Setter Property="FontSize" Value="6" />
-        <Setter Property="Width" Value="12" />
-        <Setter Property="Height" Value="12" />
+        <Setter Property="Width" Value="11" />
+        <Setter Property="Height" Value="11" />
         <Setter Property="BorderThickness" Value="0.5" />
-        <Setter Property="BorderBrush" Value="Black"/>
-        <Setter Property="Background" Value="White" />
+        <Setter Property="BorderBrush" Value="{StaticResource TreeGridIconBorderBrash}"/>
+        <Setter Property="Background" Value="{StaticResource TreeGridIconBackgroundBrash}" />
+        <Setter Property="VerticalAlignment" Value="Top" />
 
         <Setter Property="Template">
             <Setter.Value>
@@ -1563,7 +1570,9 @@ limitations under the License.-->
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
                         Height="{TemplateBinding Height}"
-                        Width="{TemplateBinding Width}">
+                        Width="{TemplateBinding Width}"
+                        Margin="{TemplateBinding Margin}"
+                        Padding="{TemplateBinding Padding}">
                         
                         <TextBlock 
                             Text="{TemplateBinding Content}" 

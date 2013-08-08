@@ -5,27 +5,28 @@
     xmlns:local="using:Callisto.TestApp.SamplePages"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"  xmlns:callisto="using:Callisto.Controls">
+    mc:Ignorable="d"  xmlns:c="using:Callisto.Controls">
 
-    <Grid Background="White">
-        <Border BorderBrush="Transparent" BorderThickness="1">
+    <Grid Background="Pink">
+        <Border BorderBrush="Transparent" BorderThickness="0">
             <!-- BUGBUG fix the issue where the last line is covered by the scroller when these are set Height="150" Width="190" -->
-            <callisto:TreeGrid x:Name="SampleGrid" Background="White" >
-                <callisto:TreeGrid.ColumnDefinitions>
-                    <callisto:TreeGridColumn SplitterWidth="1" SplitterBrush="LightGray"  SplitterOpacity="0.5" />
-                    <callisto:TreeGridColumn SplitterWidth="1" SplitterBrush="LightGray"  SplitterOpacity="0.5" SplitterPadding="6" />
-                    <callisto:TreeGridColumn SplitterWidth="1" SplitterBrush="LightGray" SplitterOpacity="0.5" SplitterPadding="6"/>
-                </callisto:TreeGrid.ColumnDefinitions>
-                <callisto:TreeGrid.Header>
-                    <callisto:TreeGridRow SplitterBrush="Orange" SplitterHeight="1" SplitterOpacity="0.5" SplitterPadding="0,2,0,2"  >
-                        <callisto:TreeGridRow.Cells>
-                            <callisto:TreeGridCell Content="Name"/>
-                            <callisto:TreeGridCell Content="Value" />
-                            <callisto:TreeGridCell Content="Type" />
-                        </callisto:TreeGridRow.Cells>
-                    </callisto:TreeGridRow>
-                </callisto:TreeGrid.Header>
-            </callisto:TreeGrid>
+            <c:TreeGrid x:Name="SampleGrid" Background="DarkGreen" HorizontalScrollBarVisibility="Disabled" >
+                <c:TreeGrid.ColumnDefinitions>
+                    <c:TreeGridColumn SplitterWidth="1" SplitterBrush="White"  SplitterOpacity="0.5" AllowResize="True" SplitterPadding="20" />
+                    <c:TreeGridColumn SplitterWidth="1" SplitterBrush="White"  SplitterOpacity="0.5" SplitterPadding="20" AllowResize="True" />
+                    <c:TreeGridColumn SplitterWidth="1" SplitterBrush="White" SplitterOpacity="0.5"  SplitterPadding="6"/>
+                </c:TreeGrid.ColumnDefinitions>
+                <c:TreeGrid.Header>
+                    <c:TreeGridRow SplitterBrush="Orange" SplitterHeight="1" SplitterOpacity="0.5" SplitterPadding="0,2,0,2"  >
+                        <c:TreeGridRow.Cells>
+                            <c:TreeGridCell Content="Name" Foreground="White"/>
+                            <c:TreeGridCell Content="Value" Foreground="White" />
+                            <c:TreeGridCell Content="Type" Foreground="White" />
+                        </c:TreeGridRow.Cells>
+                    </c:TreeGridRow>
+                </c:TreeGrid.Header>
+            
+            </c:TreeGrid>
         </Border>
     </Grid>
 </Page>

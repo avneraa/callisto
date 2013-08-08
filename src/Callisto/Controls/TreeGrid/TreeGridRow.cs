@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -26,72 +25,78 @@ using Windows.UI.Xaml.Media;
 
 namespace Callisto.Controls
 {
-    public class TreeGridRow 
+    public class TreeGridRow : Control
     {
         private ObservableCollection<TreeGridCell> _cells = new ObservableCollection<TreeGridCell>();
-        private Func<TreeGridRow, IEnumerable<TreeGridRow>> _getChildren;
-        private double _splitterPadding;
         
         #region CTOR
         public TreeGridRow(){}
-
-        public TreeGridRow(Func<TreeGridRow, IEnumerable<TreeGridRow>> getChildren)
-        {
-            _getChildren = getChildren;
-        }
 
         #endregion
 
         #region fields and children collections
         public ObservableCollection<TreeGridCell> Cells { get { return _cells; } }
 
-        internal IEnumerable<TreeGridRow> GetChildren()
-        {
-            if (_getChildren != null)
-            {
-                return _getChildren(this);
-            }
-            else
-            {
-                return Enumerable.Empty<TreeGridRow>();
-            }
-        }
-
         #endregion
 
         #region Settings
 
-        public object Tag { get; set; }
 
-        public bool HasChildren { get; set; }
+        public object ExpandCallbackArg
+        {
+            get { return (object)GetValue(ExpandCallbackArgProperty); }
+            set { SetValue(ExpandCallbackArgProperty, value); }
+        }
 
-        //public GridLength Height {get;set;}
-        //{
-        //    get
-        //    {
-        //        return _rowHeight;
-        //    }
-        //    set
-        //    {
-        //        _rowHeight = value;
-        //    }
-        //}
+        public static readonly DependencyProperty ExpandCallbackArgProperty =
+            DependencyProperty.Register("ExpandCallbackArg", typeof(object), typeof(TreeGridRow), new PropertyMetadata(null));
+
+        public bool HasChildren
+        {
+            get { return (bool)GetValue(HasChildrenProperty); }
+            set { SetValue(HasChildrenProperty, value); }
+        }
+
+        public static readonly DependencyProperty HasChildrenProperty =
+            DependencyProperty.Register("HasChildren", typeof(bool), typeof(TreeGridRow), new PropertyMetadata(false));
+
+        public bool AllowResize
+        {           
+            get { return (bool)GetValue(AllowResizeProperty); }
+            set 
+            {
+                Splitter.AllowResizeRow = value;
+                SetValue(AllowResizeProperty, value); 
+            }
+        }
+
+        public static readonly DependencyProperty AllowResizeProperty =
+            DependencyProperty.Register("AllowResize", typeof(bool), typeof(TreeGridRow), new PropertyMetadata(false));
+
+
 #endregion
 
         #region Splitter properties
 
         internal GridSplitter Splitter = new GridSplitter() { Kind = SplitterKind.Row, Height=1, Padding=new Thickness(0,2,0,2), Background= new SolidColorBrush(Colors.Black), Opacity=0.5 };
+
         public double SplitterHeight
         {
-            get
-            {
-                return Splitter.Height;
+            get 
+            { 
+                return (double)GetValue(SplitterHeightProperty); 
             }
-            set
+            set 
             {
                 Splitter.Height = value;
+                SetValue(SplitterHeightProperty, value); 
             }
         }
+
+        public static readonly DependencyProperty SplitterHeightProperty =
+            DependencyProperty.Register("SplitterHeight", typeof(double), typeof(TreeGridRow), new PropertyMetadata(0));
+
+
 
         public double SplitterActualHeight
         {
@@ -101,51 +106,62 @@ namespace Callisto.Controls
             }
         }
 
-        //public static readonly DependencyProperty SplitterHeightProperty =
-        //    DependencyProperty.Register(
-        //        "SplitterHeight",
-        //        typeof(double),
-        //        typeof(TreeGridRow),
-        //        null);
+
 
         public Brush SplitterBrush
         {
-            get
-            {
-                return Splitter.Background;
+            get 
+            { 
+                return (Brush)GetValue(SplitterBrushProperty); 
             }
-            set
+            set 
             {
                 Splitter.Background = value;
+                SetValue(SplitterBrushProperty, value); 
             }
         }
+
+        // Using a DependencyProperty as the backing store for SplitterBrush.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty SplitterBrushProperty =
+            DependencyProperty.Register("SplitterBrush", typeof(Brush), typeof(TreeGridRow), null);
+
+
 
         public double SplitterOpacity
         {
-            get
-            {
-                return Splitter.Opacity;
+            get 
+            { 
+                return (double)GetValue(SplitterOpacityProperty); 
             }
-            set
+            set 
             {
                 Splitter.Opacity = value;
+                SetValue(SplitterOpacityProperty, value); 
             }
         }
+
+        public static readonly DependencyProperty SplitterOpacityProperty =
+            DependencyProperty.Register("SplitterOpacity", typeof(double), typeof(TreeGridRow), new PropertyMetadata(1));
+
 
         public Thickness SplitterPadding
         {
-            get
-            {
-                return Splitter.Padding;
+            get 
+            { 
+                return (Thickness)GetValue(SplitterPaddingProperty); 
             }
-            set
+            set 
             {
-                Splitter.Padding = value; //new Thickness(0, value / 2, 0, value / 2);
+                Splitter.Padding = value;
+                SetValue(SplitterPaddingProperty, value); 
             }
         }
 
+        // Using a DependencyProperty as the backing store for SplitterPadding.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty SplitterPaddingProperty =
+            DependencyProperty.Register("SplitterPadding", typeof(Thickness), typeof(TreeGridRow), null);
+
         #endregion
 
-        //TODO Expose rowheight and apply it to the underlying GridRow 
     }
 }

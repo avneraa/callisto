@@ -14,15 +14,10 @@
 // limitations under the License.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Shapes;
 
 namespace Callisto.Controls
 {
@@ -33,7 +28,7 @@ namespace Callisto.Controls
 
         public TreeGridColumn()
         {
-            this.GridColumn = new ColumnDefinition()     ;
+            this.GridColumn = new ColumnDefinition();
             this.SplitterColumn = new ColumnDefinition() { Width = GridLength.Auto };
             this.SplitterWidth = 1;
             isDefaultWidth = true;
@@ -165,6 +160,23 @@ namespace Callisto.Controls
                 typeof(TreeGridColumn),
                 null
            );
+
+        
+        public bool AllowResize
+        {
+            get { return (bool)GetValue(AllowResizeProperty); }
+            set 
+            {
+                Splitter.AllowResizeColumn = value;
+                SetValue(AllowResizeProperty, value); 
+            }
+        }
+
+        // Using a DependencyProperty as the backing store for AllowResize.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty AllowResizeProperty =
+            DependencyProperty.Register("AllowResize", typeof(bool), typeof(TreeGridColumn), new PropertyMetadata(false));
+
+
         #endregion
 
 

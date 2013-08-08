@@ -1,7 +1,10 @@
 ﻿using Callisto.Controls;
 using System.Collections.Generic;
 using System.Linq;
+using Windows.UI;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 
 namespace Callisto.TestApp.SamplePages
 {
@@ -10,6 +13,7 @@ namespace Callisto.TestApp.SamplePages
     /// </summary>
     public sealed partial class TreeGridSample : Page
     {
+        Brush _white = new SolidColorBrush(Colors.White);
         public TreeGridSample()
         {
             this.InitializeComponent();
@@ -20,6 +24,7 @@ namespace Callisto.TestApp.SamplePages
         {
 
             var sampleData = new SampleParseTreeData();
+            SampleGrid.ExpandCallback = GetChildren;
             foreach (var parseNode in sampleData.RootNodes)
             {
                 var t = CreateTreeGridRow(parseNode);
@@ -29,25 +34,25 @@ namespace Callisto.TestApp.SamplePages
 
         private TreeGridRow CreateTreeGridRow(ParseNode parseNode)
         {
-            var row = new TreeGridRow(GetChildren) ;
+            var row = new TreeGridRow() { AllowResize = true, SplitterBrush = _white };
             AddCellsForParseNode(row, parseNode);
             row.HasChildren = parseNode.HasChildren;
-            row.Tag = parseNode;
+            row.ExpandCallbackArg = parseNode;
             return row;
         }
 
         private void AddCellsForParseNode(TreeGridRow row, ParseNode parseNode)
         {
 
-            row.Cells.Add(new TreeGridCell() { Content = parseNode.Name });
-            row.Cells.Add(new TreeGridCell() { Content = parseNode.Value });
-            row.Cells.Add(new TreeGridCell() { Content = parseNode.Type });
+            row.Cells.Add(new TreeGridCell() { Content = new TextBlock() { Text = parseNode.Name, TextWrapping = TextWrapping.Wrap, Foreground = _white } });
+            row.Cells.Add(new TreeGridCell() { Content = new TextBlock() { Text = parseNode.Name, TextWrapping = TextWrapping.Wrap, Foreground = _white } });
+            row.Cells.Add(new TreeGridCell() { Content = new TextBlock() { Text = parseNode.Name, TextWrapping = TextWrapping.Wrap, Foreground = _white } });
 
         }
 
-        IEnumerable<TreeGridRow> GetChildren(TreeGridRow parent)
+        IEnumerable<TreeGridRow> GetChildren(object node)
         {
-            var pn = (ParseNode)parent.Tag;
+            var pn = (ParseNode)node;
             return pn.Children.Select((c) => CreateTreeGridRow(c));
         }
 

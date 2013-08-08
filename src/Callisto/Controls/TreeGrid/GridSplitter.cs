@@ -13,19 +13,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+
+// This control is using some of the design and logic of the CustomGridSplitter control in the WinRTXamlToolkit http://winrtxamltoolkit.codeplex.com/ 
+
 using System;
 using Windows.Foundation;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 
-// This control is inspired by CustomGridSplitter control in the WinRTXamlToolkit http://winrtxamltoolkit.codeplex.com/ 
+
 
 namespace Callisto.Controls
 {
@@ -54,27 +55,58 @@ namespace Callisto.Controls
         void GridSplitter_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
             _currentCursor = Window.Current.CoreWindow.PointerCursor;
-            if (Kind == SplitterKind.Column)
+            if (Kind == SplitterKind.Column && AllowResizeColumn)
             {
                 Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.SizeWestEast, 1);
             }
-            else
+            else if(AllowResizeRow)
             {
                 Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.SizeNorthSouth, 2);
             }
 
         }
 
-        /// <summary>
-        /// Occurs when dragging completes.
-        /// </summary>
-        public event EventHandler DraggingCompleted;
+        protected override void OnDoubleTapped(DoubleTappedRoutedEventArgs e)
+        {
+            base.OnDoubleTapped(e);
+            if (Kind == SplitterKind.Column && AllowResizeColumn)
+            {
+                var idx = Grid.GetColumn(this);
+                var cLeft = GetGrid().ColumnDefinitions[idx - 1];
+                var cRight = GetGrid().ColumnDefinitions[idx + 1];
+                cLeft.Width = GridLength.Auto;
+                var columnCount = GetGrid().ColumnDefinitions.Count;
+                if(idx + 1 != columnCount -2)
+                {
+                    cRight.Width = GridLength.Auto;
+                }
+                //Keep the last column to 1* so that the grid does not shrink
+                GetGrid().ColumnDefinitions[columnCount-2].Width = new GridLength(1, GridUnitType.Star);
+            }
+            else if (AllowResizeRow)
+            {
+                var idx = Grid.GetRow(this);
+                var rLeft = GetGrid().RowDefinitions[idx - 1];
+                var rRight = GetGrid().RowDefinitions[idx + 1];
+                rLeft.Height = GridLength.Auto;
+                if(idx != GetGrid().RowDefinitions.Count -1)
+                {
+                    rRight.Height = GridLength.Auto;
+                }
+            }
+        }
+
+        #region AllowResize setters
+
+        public bool AllowResizeRow { get; set; }
+        public bool AllowResizeColumn { get; set;}
+
+        #endregion
 
         #region Resizing event handlers and variables
 
         CoreCursor _currentCursor;
         private Point _lastPosition;
-        private Point _previewDraggingStartPosition;
         private bool _isDragging;
 
 
@@ -127,12 +159,12 @@ namespace Callisto.Controls
 
         private void ContinueDirectDragging(Point position)
         {
-            if (Kind == SplitterKind.Column)
+            if (Kind == SplitterKind.Column && AllowResizeColumn)
             {
                 var deltaX = position.X - _lastPosition.X;
                 this.ResizeColumns(_parentGrid, deltaX);
             }
-            else
+            else if(AllowResizeRow)
             {
                 var deltaY = position.Y - _lastPosition.Y;
                 this.ResizeRows(_parentGrid, deltaY);
@@ -155,7 +187,7 @@ namespace Callisto.Controls
             _isDragging = false;
             _dragPointer = null;
             _parentGrid = null;
-            Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Arrow, 3);
+            //Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Arrow, 3);
         }
 
         #endregion
@@ -211,107 +243,16 @@ namespace Callisto.Controls
             var newLeftColumnActualWidth = leftColumnActualWidth + deltaX;
             var newRightColumnActualWidth = rightColumnActualWidth - deltaX;
 
-            //grid.BeginInit();
-
-            double totalStarColumnsWidth = 0;
             double starColumnsAvailableWidth = grid.ActualWidth;
 
             rightColumnDefinition.Width = new GridLength(newRightColumnActualWidth, GridUnitType.Pixel);
             leftColumnDefinition.Width = new GridLength(newLeftColumnActualWidth, GridUnitType.Pixel);
 
-            //if (leftColumnGridUnitType == GridUnitType.Star || rightColumnGridUnitType == GridUnitType.Star)
-            //{
-            //    foreach (var columnDefinition in grid.ColumnDefinitions)
-            //    {
-            //        if (columnDefinition.Width.GridUnitType == GridUnitType.Star)
-            //        {
-            //            totalStarColumnsWidth += columnDefinition.Width.Value;
-            //        }
-            //        else
-            //        {
-            //            starColumnsAvailableWidth -= columnDefinition.ActualWidth;
-            //        }
-            //    }
-            //}
-
-            //if (leftColumnGridUnitType == GridUnitType.Star)
-            //{
-            //    if (rightColumnGridUnitType == GridUnitType.Star)
-            //    {
-            //        // If both columns are star columns
-            //        // - totalStarColumnsWidth won't change and
-            //        // as much as one of the columns grows
-            //        // - the other column will shrink by the same value.
-
-            //        // If there is no width available to star columns
-            //        // - we can't resize two of them.
-            //        if (starColumnsAvailableWidth < 1)
-            //        {
-            //            return;
-            //        }
-
-            //        var oldStarWidth = leftColumnDefinition.Width.Value;
-            //        var newStarWidth = Math.Max(0, totalStarColumnsWidth * newLeftColumnActualWidth / starColumnsAvailableWidth);
-            //        leftColumnDefinition.Width = new GridLength(newStarWidth, GridUnitType.Star);
-
-            //        rightColumnDefinition.Width = new GridLength(Math.Max(0, rightColumnDefinition.Width.Value - newStarWidth + oldStarWidth), GridUnitType.Star);
-            //    }
-            //    else
-            //    {
-            //        var newStarColumnsAvailableWidth =
-            //            starColumnsAvailableWidth +
-            //            rightColumnActualWidth -
-            //            newRightColumnActualWidth;
-
-            //        if (newStarColumnsAvailableWidth - newLeftColumnActualWidth >= 1)
-            //        {
-            //            var newStarWidth = Math.Max(
-            //                0,
-            //                (totalStarColumnsWidth -
-            //                 leftColumnDefinition.Width.Value) *
-            //                newLeftColumnActualWidth /
-            //                (newStarColumnsAvailableWidth - newLeftColumnActualWidth));
-
-            //            leftColumnDefinition.Width =
-            //                new GridLength(newStarWidth, GridUnitType.Star);
-            //        }
-            //    }
-            //}
-            //else
-            //{
-            //    leftColumnDefinition.Width = new GridLength(newLeftColumnActualWidth, GridUnitType.Pixel);
-            //}
-
-            //if (rightColumnGridUnitType == GridUnitType.Star)
-            //{
-            //    if (leftColumnGridUnitType != GridUnitType.Star)
-            //    {
-            //        var newStarColumnsAvailableWidth = starColumnsAvailableWidth + leftColumnActualWidth - newLeftColumnActualWidth;
-
-            //        if (newStarColumnsAvailableWidth - newRightColumnActualWidth >= 1)
-            //        {
-            //            var newStarWidth = Math.Max(
-            //                0,
-            //                (totalStarColumnsWidth -
-            //                 rightColumnDefinition.Width.Value) *
-            //                newRightColumnActualWidth /
-            //                (newStarColumnsAvailableWidth - newRightColumnActualWidth));
-            //            rightColumnDefinition.Width = new GridLength(newStarWidth, GridUnitType.Star);
-            //        }
-            //    }
-            //    // else handled in the left column width calculation block
-            //}
-            //else
-            //{
-            //    rightColumnDefinition.Width = new GridLength(newRightColumnActualWidth, GridUnitType.Pixel);
-            //}
-
-            //grid.EndInit();
         }
         #endregion
 
         #region ResizeRows()
-        private void ResizeRows(Grid grid, double deltaX)
+        private void ResizeRows(Grid grid, double deltaY)
         {
 
             int row = Grid.GetRow(this);
@@ -319,157 +260,59 @@ namespace Callisto.Controls
             int lowerRow;
 
 
-            upperRow = row;
+            upperRow = row - 1;
             lowerRow = row + 1;
+            var upperRowDefinition = grid.RowDefinitions[upperRow];
+            var upperRowActualHeight = upperRowDefinition.ActualHeight;
+            var upperRowMaxHeight = upperRowDefinition.MaxHeight;
+            var upperRowMinHeight = upperRowDefinition.MinHeight;
 
+            if (upperRowActualHeight + deltaY > upperRowMaxHeight)
+            {
+                deltaY = Math.Max(0, upperRowDefinition.MaxHeight - upperRowActualHeight);
+            }
+
+            if (upperRowActualHeight + deltaY < upperRowMinHeight)
+            {
+                deltaY = Math.Min(0, upperRowDefinition.MinHeight - upperRowActualHeight);
+            }
+
+            var yInGrid = ((MatrixTransform)this.TransformToVisual(grid)).Matrix.OffsetY;
+            var scrollViewerMargin = ((ScrollViewer)grid.Parent).ComputedHorizontalScrollBarVisibility == Visibility.Visible ? 16 : 4;
+
+            var newUpperRowActualHeight = upperRowActualHeight + deltaY;
+            if (yInGrid + scrollViewerMargin + deltaY < grid.ActualHeight)
+            {
+                upperRowDefinition.Height = new GridLength(newUpperRowActualHeight, GridUnitType.Pixel);
+            }
 
             if (lowerRow >= grid.RowDefinitions.Count)
             {
                 return;
             }
 
-            var upperRowDefinition = grid.RowDefinitions[upperRow];
             var lowerRowDefinition = grid.RowDefinitions[lowerRow];
-            var upperRowGridUnitType = upperRowDefinition.Height.GridUnitType;
-            var lowerRowGridUnitType = lowerRowDefinition.Height.GridUnitType;
-            var upperRowActualHeight = upperRowDefinition.ActualHeight;
             var lowerRowActualHeight = lowerRowDefinition.ActualHeight;
-            var upperRowMaxHeight = upperRowDefinition.MaxHeight;
             var lowerRowMaxHeight = lowerRowDefinition.MaxHeight;
-            var upperRowMinHeight = upperRowDefinition.MinHeight;
             var lowerRowMinHeight = lowerRowDefinition.MinHeight;
 
-            //deltaX = 200;
-            if (upperRowActualHeight + deltaX > upperRowMaxHeight)
+            if (lowerRowActualHeight - deltaY > lowerRowMaxHeight)
             {
-                deltaX = Math.Max(
-                    0,
-                    upperRowDefinition.MaxHeight - upperRowActualHeight);
+                deltaY = -Math.Max(0, lowerRowDefinition.MaxHeight - lowerRowActualHeight);
             }
 
-            if (upperRowActualHeight + deltaX < upperRowMinHeight)
+            if (lowerRowActualHeight - deltaY < lowerRowMinHeight)
             {
-                deltaX = Math.Min(
-                    0,
-                    upperRowDefinition.MinHeight - upperRowActualHeight);
+                deltaY = -Math.Min(0, lowerRowDefinition.MinHeight - lowerRowActualHeight);
             }
 
-            if (lowerRowActualHeight - deltaX > lowerRowMaxHeight)
-            {
-                deltaX = -Math.Max(
-                    0,
-                    lowerRowDefinition.MaxHeight - lowerRowActualHeight);
-            }
 
-            if (lowerRowActualHeight - deltaX < lowerRowMinHeight)
-            {
-                deltaX = -Math.Min(
-                    0,
-                    lowerRowDefinition.MinHeight - lowerRowActualHeight);
-            }
+            var newLowerRowActualHeight = lowerRowActualHeight - deltaY;
 
-            var newUpperRowActualHeight = upperRowActualHeight + deltaX;
-            var newLowerRowActualHeight = lowerRowActualHeight - deltaX;
-
-            //grid.BeginInit();
-
-            double totalStarRowsHeight = 0;
             double starRowsAvailableHeight = grid.ActualHeight;
 
-            if (upperRowGridUnitType == GridUnitType.Star || lowerRowGridUnitType == GridUnitType.Star)
-            {
-                foreach (var rowDefinition in grid.RowDefinitions)
-                {
-                    if (rowDefinition.Height.GridUnitType == GridUnitType.Star)
-                    {
-                        totalStarRowsHeight += rowDefinition.Height.Value;
-                    }
-                    else
-                    {
-                        starRowsAvailableHeight -= rowDefinition.ActualHeight;
-                    }
-                }
-            }
+            lowerRowDefinition.Height = new GridLength(newLowerRowActualHeight, GridUnitType.Pixel);
 
-            if (upperRowGridUnitType == GridUnitType.Star)
-            {
-                if (lowerRowGridUnitType == GridUnitType.Star)
-                {
-                    // If both rows are star rows
-                    // - totalStarRowsHeight won't change and
-                    // as much as one of the rows grows
-                    // - the other row will shrink by the same value.
-
-                    // If there is no width available to star rows
-                    // - we can't resize two of them.
-                    if (starRowsAvailableHeight < 1)
-                    {
-                        return;
-                    }
-
-                    var oldStarHeight = upperRowDefinition.Height.Value;
-                    var newStarHeight = Math.Max(
-                        0,
-                        totalStarRowsHeight * newUpperRowActualHeight /
-                        starRowsAvailableHeight);
-                    upperRowDefinition.Height = new GridLength(newStarHeight, GridUnitType.Star);
-
-                    lowerRowDefinition.Height =
-                        new GridLength(
-                            Math.Max(
-                                0,
-                                lowerRowDefinition.Height.Value -
-                                    newStarHeight + oldStarHeight),
-                            GridUnitType.Star);
-                }
-                else
-                {
-                    var newStarRowsAvailableHeight = starRowsAvailableHeight + lowerRowActualHeight - newLowerRowActualHeight;
-
-                    if (newStarRowsAvailableHeight - newUpperRowActualHeight >= 1)
-                    {
-                        var newStarHeight = Math.Max(
-                            0,
-                            (totalStarRowsHeight -
-                             upperRowDefinition.Height.Value) *
-                            newUpperRowActualHeight /
-                            (newStarRowsAvailableHeight - newUpperRowActualHeight));
-
-                        upperRowDefinition.Height = new GridLength(newStarHeight, GridUnitType.Star);
-                    }
-                }
-            }
-            else
-            {
-                upperRowDefinition.Height = new GridLength(newUpperRowActualHeight, GridUnitType.Pixel);
-            }
-
-            if (lowerRowGridUnitType == GridUnitType.Star)
-            {
-                if (upperRowGridUnitType != GridUnitType.Star)
-                {
-                    var newStarRowsAvailableHeight = starRowsAvailableHeight + upperRowActualHeight - newUpperRowActualHeight;
-
-                    if (newStarRowsAvailableHeight - newLowerRowActualHeight >= 1)
-                    {
-                        var newStarHeight = Math.Max(
-                            0,
-                            (totalStarRowsHeight -
-                             lowerRowDefinition.Height.Value) *
-                            newLowerRowActualHeight /
-                            (newStarRowsAvailableHeight - newLowerRowActualHeight));
-
-                        lowerRowDefinition.Height = new GridLength(newStarHeight, GridUnitType.Star);
-                    }
-                }
-                // else handled in the upper row width calculation block
-            }
-            else
-            {
-                lowerRowDefinition.Height = new GridLength(newLowerRowActualHeight, GridUnitType.Pixel);
-            }
-
-            //grid.EndInit();
         }
         #endregion
 
@@ -567,14 +410,17 @@ namespace Callisto.Controls
                 _border.BorderThickness = value;
             }
         }
+        #endregion
     }
 
-        #endregion
+    #region SplitterKind Enum
 
     internal enum SplitterKind
     {
         Row,
         Column
     }
+
+#endregion
 
 }
