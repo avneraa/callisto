@@ -10,14 +10,14 @@
     <Grid Background="Pink">
         <Border BorderBrush="Transparent" BorderThickness="0">
             <!-- BUGBUG fix the issue where the last line is covered by the scroller when these are set Height="150" Width="190" -->
-            <c:TreeGrid x:Name="SampleGrid" Background="DarkGreen" HorizontalScrollBarVisibility="Disabled" >
-                <c:TreeGrid.ColumnDefinitions>
-                    <c:TreeGridColumn SplitterWidth="1" SplitterBrush="White"  SplitterOpacity="0.5" AllowResize="True" SplitterPadding="20" />
-                    <c:TreeGridColumn SplitterWidth="1" SplitterBrush="White"  SplitterOpacity="0.5" SplitterPadding="20" AllowResize="True" />
-                    <c:TreeGridColumn SplitterWidth="1" SplitterBrush="White" SplitterOpacity="0.5"  SplitterPadding="6"/>
-                </c:TreeGrid.ColumnDefinitions>
+            <c:TreeGrid x:Name="SampleGrid" Background="DarkGreen" HorizontalScrollBarVisibility="Disabled" IndentSize="6" >
+                <c:TreeGrid.Columns>
+                    <c:TreeGridColumn SplitterWidth="1" SplitterBrush="White"  SplitterOpacity="0.5" AllowResize="True" SplitterPadding="4,0,4, 0"/>
+                    <c:TreeGridColumn SplitterWidth="1" SplitterBrush="White"  SplitterOpacity="0.5" SplitterPadding="4,0,4, 0" AllowResize="True" />
+                    <c:TreeGridColumn  />
+                </c:TreeGrid.Columns>
                 <c:TreeGrid.Header>
-                    <c:TreeGridRow SplitterBrush="Orange" SplitterHeight="1" SplitterOpacity="0.5" SplitterPadding="0,2,0,2"  >
+                    <c:TreeGridRow SplitterBrush="White" SplitterHeight="1" SplitterOpacity="0.5" SplitterPadding="0,2,0,2"  >
                         <c:TreeGridRow.Cells>
                             <c:TreeGridCell Content="Name" Foreground="White"/>
                             <c:TreeGridCell Content="Value" Foreground="White" />
@@ -25,7 +25,24 @@
                         </c:TreeGridRow.Cells>
                     </c:TreeGridRow>
                 </c:TreeGrid.Header>
-            
+                
+                <c:TreeGrid.ItemTemplate>
+                    <DataTemplate>
+                        <c:TreeGridRow HasChildren="{Binding HasChildren}" SplitterHeight="1" SplitterBrush="White" SplitterPadding="0,4,0,4" ExpandCallbackArg="{Binding}">
+                            <c:TreeGridRow.Cells>
+                                    <c:TreeGridCell>
+                                        <TextBlock Text="{Binding Name}" Foreground="White"/>
+                                    </c:TreeGridCell>
+                                    <c:TreeGridCell>
+                                    <TextBlock Text="{Binding Value}" Foreground="White" />
+                                    </c:TreeGridCell>
+                                <c:TreeGridCell>
+                                    <TextBlock Text="{Binding Type}" Foreground="White" />
+                                </c:TreeGridCell>
+                            </c:TreeGridRow.Cells>
+                        </c:TreeGridRow>
+                    </DataTemplate>
+                </c:TreeGrid.ItemTemplate>
             </c:TreeGrid>
         </Border>
     </Grid>

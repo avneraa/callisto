@@ -4,6 +4,7 @@ using System.Linq;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 
 namespace Callisto.TestApp.SamplePages
@@ -14,21 +15,24 @@ namespace Callisto.TestApp.SamplePages
     public sealed partial class TreeGridSample : Page
     {
         Brush _white = new SolidColorBrush(Colors.White);
+        SampleParseTreeData _sampleData = new SampleParseTreeData();
+
         public TreeGridSample()
         {
             this.InitializeComponent();
-            PopulateDebuggerGrid();
+            SampleGrid.ItemsSource = _sampleData.RootNodes;
+            SampleGrid.ExpandCallback = GetChildren;
+            //PopulateDebuggerGrid();
         }
 
         private void PopulateDebuggerGrid() 
         {
 
-            var sampleData = new SampleParseTreeData();
-            SampleGrid.ExpandCallback = GetChildren;
-            foreach (var parseNode in sampleData.RootNodes)
+
+            foreach (var parseNode in _sampleData.RootNodes)
             {
-                var t = CreateTreeGridRow(parseNode);
-                SampleGrid.Items.Add(t);
+                var newRow = CreateTreeGridRow(parseNode);
+                SampleGrid.Rows.Add(newRow);
             }
         }
 
@@ -45,8 +49,8 @@ namespace Callisto.TestApp.SamplePages
         {
 
             row.Cells.Add(new TreeGridCell() { Content = new TextBlock() { Text = parseNode.Name, TextWrapping = TextWrapping.Wrap, Foreground = _white } });
-            row.Cells.Add(new TreeGridCell() { Content = new TextBlock() { Text = parseNode.Name, TextWrapping = TextWrapping.Wrap, Foreground = _white } });
-            row.Cells.Add(new TreeGridCell() { Content = new TextBlock() { Text = parseNode.Name, TextWrapping = TextWrapping.Wrap, Foreground = _white } });
+            row.Cells.Add(new TreeGridCell() { Content = new TextBlock() { Text = parseNode.Value, TextWrapping = TextWrapping.Wrap, Foreground = _white } });
+            row.Cells.Add(new TreeGridCell() { Content = new TextBlock() { Text = parseNode.Type, TextWrapping = TextWrapping.Wrap, Foreground = _white } });
 
         }
 

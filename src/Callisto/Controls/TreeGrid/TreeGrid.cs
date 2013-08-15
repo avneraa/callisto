@@ -33,17 +33,17 @@ using Windows.UI.Xaml.Markup;
 
 namespace Callisto.Controls
 {
-
-    public sealed class TreeGrid : ItemsControl //, IUpdateVisualStatecolumn.splitter
+    [StyleTypedProperty(Property = "ItemContainerStyle", StyleTargetType = typeof(TreeGridRow))]
+    public sealed class TreeGrid : Control //, IUpdateVisualStatecolumn.splitter
     {
         
         private ScrollViewer _root;
         private Grid _rootGrid = new Grid();
         private ObservableCollection<TreeGridColumn> _columnDefinitions = new ObservableCollection<TreeGridColumn>();
-        private ObservableCollection<TreeGridRow> _items = new ObservableCollection<TreeGridRow>();
+        private ObservableCollection<TreeGridRow> _rows = new ObservableCollection<TreeGridRow>();
         private Dictionary<RowDefinition, ItemInfo> _rowItemMap = new Dictionary<RowDefinition, ItemInfo>(); 
-        private Brush _rowSplitterBrush = new SolidColorBrush(Colors.Blue);
         private bool _headerRowAdded = false;
+
 
         #region CTOR
 
@@ -51,7 +51,7 @@ namespace Callisto.Controls
         {
             this.DefaultStyleKey = typeof(TreeGrid);
             _columnDefinitions.CollectionChanged += _columnDefinitions_CollectionChanged;
-            _items.CollectionChanged += _items_CollectionChanged;
+            _rows.CollectionChanged += _rows_CollectionChanged;
         }
 
         protected override void OnApplyTemplate()
@@ -61,6 +61,38 @@ namespace Callisto.Controls
             _root.Content = _rootGrid;
         }
 
+        #endregion
+
+        #region Data Binding support
+
+        public DataTemplate ItemTemplate
+        {
+            get;
+            set;
+        }
+
+        public IEnumerable<object> ItemsSource
+        {
+            get { return (IEnumerable<object>)GetValue(ItemsSourceProperty); }
+            set
+            {
+                SetValue(ItemsSourceProperty, value);
+                //ClearGrid();
+                foreach (var item in value)
+                {
+                    TreeGridRow row = ItemTemplate.LoadContent() as TreeGridRow;
+                    row.DataContext = item;
+                    foreach (var cell in row.Cells)
+                    {
+                        cell.DataContext = item;
+                    }
+                    AddRow(row);
+                }
+            }
+        }
+
+        public static readonly DependencyProperty ItemsSourceProperty =
+            DependencyProperty.Register("ItemsSource", typeof(IEnumerable<object>), typeof(TreeGrid), null);
         #endregion
 
         #region CollectionChanged event handlers
@@ -96,7 +128,7 @@ namespace Callisto.Controls
             }
         }
 
-        void _items_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        void _rows_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if(e.Action == NotifyCollectionChangedAction.Add)
             {
@@ -108,19 +140,23 @@ namespace Callisto.Controls
         {
             foreach (TreeGridRow item in newRows)
             {
-                //Check that the number of columns matches the item fields
-#if DEBUG
-                if (item.Cells.Count() > _columnDefinitions.Count)
-                {
-                    throw new ArgumentException("Number of fields is different than numbers of the grid columns");
-                }
-#endif
-                //Create new row at the end
-                var itemInfo = new ItemInfo() { IndentLevel = 0 };
-                InsertNewRows(_rootGrid.RowDefinitions.Count, 1);
-                UpdateRowForItem(item, _rootGrid.RowDefinitions.Count - 2, itemInfo);
-
+                AddRow(item);
             }
+        }
+
+        private void AddRow(TreeGridRow item)
+        {
+            //Check that the number of columns matches the item fields
+#if DEBUG
+            if (item.Cells.Count() > _columnDefinitions.Count)
+            {
+                throw new ArgumentException("Number of fields is different than numbers of the grid columns");
+            }
+#endif
+            //Create new row at the end
+            var itemInfo = new ItemInfo() { IndentLevel = 0 };
+            InsertNewRows(_rootGrid.RowDefinitions.Count, 1);
+            UpdateRowForItem(item, _rootGrid.RowDefinitions.Count - 2, itemInfo);
         }
 
         private void UpdateRowForItem(TreeGridRow item, int index, ItemInfo info)
@@ -188,7 +224,7 @@ namespace Callisto.Controls
                 //insert new rows
                 var count = children.Count();
                 InsertNewRows(currentIndex + 2, count);
-                UpdateExistingItems(currentIndex, count);
+                UpdateExistingRows(currentIndex, count);
                 foreach (var child in children)
                 {
                     currentIndex += 2;
@@ -261,7 +297,7 @@ namespace Callisto.Controls
             }
 
         }
-        private void UpdateExistingItems(int currentIndex, int count)
+        private void UpdateExistingRows(int currentIndex, int count)
         {
             foreach (FrameworkElement fe in _rootGrid.Children)
             {
@@ -278,6 +314,7 @@ namespace Callisto.Controls
         #endregion
 
         #region Insert new rows
+
         private void InsertNewRows(int currentIndex, int count)
         {
             var index = currentIndex;
@@ -304,20 +341,25 @@ namespace Callisto.Controls
 
         #endregion
 
+
+
         #region Row and Column collections
-        
-        public ObservableCollection<TreeGridColumn> ColumnDefinitions
+
+        public ObservableCollection<TreeGridColumn> Columns
         {
             get
             {
                 return _columnDefinitions;
             }
         }
-        public ObservableCollection<TreeGridRow> Items
+        
+       
+
+        public ObservableCollection<TreeGridRow> Rows
         {
             get 
             {
-                return _items;
+                return _rows;
             }
         }
 
@@ -347,6 +389,8 @@ namespace Callisto.Controls
 
         private void AddHeader(TreeGridRow row)
         {
+
+            //TODO get rid of this and allow replacing the header
             if (_headerRowAdded)
             {
                 throw new InvalidOperationException("Header already exists");
@@ -355,7 +399,7 @@ namespace Callisto.Controls
             {
 
                 InsertNewRows(0, 1); //Add Header row
-                UpdateExistingItems(0, 1);
+                UpdateExistingRows(0, 1);
 
                 var fields = row.Cells.ToList();
                 for (int i = 0; i < fields.Count; i++)

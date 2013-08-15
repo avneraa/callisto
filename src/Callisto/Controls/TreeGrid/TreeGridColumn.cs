@@ -140,23 +140,23 @@ namespace Callisto.Controls
             );
         
 
-        public double SplitterPadding
+        public Thickness SplitterPadding
         {
             get
             {
-                return (double)GetValue(SplitterPaddingProperty);
+                return (Thickness)GetValue(SplitterPaddingProperty);
             }
             set
             {
                 SetValue(SplitterPaddingProperty, value);
-                Splitter.Padding = new Thickness(value / 2, 0, value / 2, 0);
+                Splitter.Padding = value;
             }
         }
 
         public static readonly DependencyProperty SplitterPaddingProperty =
             DependencyProperty.Register(
                 "SplitterPadding",
-                typeof(double),
+                typeof(Thickness),
                 typeof(TreeGridColumn),
                 null
            );

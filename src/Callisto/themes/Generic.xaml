@@ -1538,20 +1538,20 @@ limitations under the License.-->
                                   BorderBrush="{TemplateBinding BorderBrush}"
                                   BorderThickness="{TemplateBinding BorderThickness}"
                                   Margin="{TemplateBinding Margin}"
-                                  Padding="{TemplateBinding Padding}" />
+                                  Padding="{TemplateBinding Padding}" >
+                    </ScrollViewer>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
     
-    <!--<Style TargetType="local:TreeGridRow">
-        <Setter Property="SplitterBrush" Value="Black" />
+    <Style TargetType="local:TreeGridRow">
+        <Setter Property="SplitterBrush" Value="{StaticResource TreeGridIconBorderBrash}" />
         <Setter Property="SplitterOpacity" Value="0.5" />
-        <Setter Property="SplitterPadding" Value="0,2,0,2" />
+        <Setter Property="SplitterPadding" Value="0,4,0,4" />
         <Setter Property="SplitterHeight" Value="1" />
-        
-    </Style>-->
-
+    </Style>
+    
     <Style TargetType="local:TreeGridIcon">
         <Setter Property="FontFamily" Value="Segoe UI Symbol" />
         <Setter Property="FontSize" Value="6" />

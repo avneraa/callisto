@@ -25,12 +25,15 @@ using Windows.UI.Xaml.Media;
 
 namespace Callisto.Controls
 {
-    public class TreeGridRow : Control
+    public class TreeGridRow : Control 
     {
         private ObservableCollection<TreeGridCell> _cells = new ObservableCollection<TreeGridCell>();
         
         #region CTOR
-        public TreeGridRow(){}
+        public TreeGridRow() 
+        {
+            this.DefaultStyleKey = typeof(TreeGridRow);
+        }
 
         #endregion
 
@@ -98,15 +101,13 @@ namespace Callisto.Controls
 
 
 
-        public double SplitterActualHeight
+        internal double SplitterActualHeight
         {
             get
             {
                 return Splitter.ActualHeight;
             }
         }
-
-
 
         public Brush SplitterBrush
         {
@@ -124,7 +125,6 @@ namespace Callisto.Controls
         // Using a DependencyProperty as the backing store for SplitterBrush.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SplitterBrushProperty =
             DependencyProperty.Register("SplitterBrush", typeof(Brush), typeof(TreeGridRow), null);
-
 
 
         public double SplitterOpacity
