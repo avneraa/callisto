@@ -36,7 +36,9 @@ namespace Callisto.Controls
     [StyleTypedProperty(Property = "ItemContainerStyle", StyleTargetType = typeof(TreeGridRow))]
     public sealed class TreeGrid : Control //, IUpdateVisualStatecolumn.splitter
     {
-        
+
+        #region Global variables
+
         private ScrollViewer _root;
         private Grid _rootGrid = new Grid();
         private ObservableCollection<TreeGridColumn> _columnDefinitions = new ObservableCollection<TreeGridColumn>();
@@ -44,6 +46,7 @@ namespace Callisto.Controls
         private Dictionary<RowDefinition, ItemInfo> _rowItemMap = new Dictionary<RowDefinition, ItemInfo>(); 
         private bool _headerRowAdded = false;
 
+#endregion
 
         #region CTOR
 
@@ -59,6 +62,15 @@ namespace Callisto.Controls
             base.OnApplyTemplate();
             _root = GetTemplateChild("RootScrollViewer") as ScrollViewer;
             _root.Content = _rootGrid;
+            
+            //_root.Tapped += _rootGrid_Tapped;
+        }
+
+        void _rootGrid_Tapped(object sender, RoutedEventArgs e)
+        {
+            var y = e.OriginalSource as TextBlock;
+            var z = y.Parent;
+
         }
 
         #endregion
@@ -85,8 +97,9 @@ namespace Callisto.Controls
                     foreach (var cell in row.Cells)
                     {
                         cell.DataContext = item;
+                        cell.AddHandler(TreeGridCell.TappedEvent, new TappedEventHandler(_rootGrid_Tapped), true);
                     }
-                    AddRow(row);
+                    Rows.Add(row);
                 }
             }
         }
@@ -134,14 +147,33 @@ namespace Callisto.Controls
             {
                 AddRows(e.NewItems.Cast<TreeGridRow>());
             }
+            else if(e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                RemoveRows(e.OldItems.Cast<TreeGridRow>());
+            }
         }
 
         private void AddRows(IEnumerable<TreeGridRow> newRows)
         {
-            foreach (TreeGridRow item in newRows)
+            foreach (TreeGridRow row in newRows)
             {
-                AddRow(item);
+                AddRow(row);
             }
+        }
+
+        private void RemoveRows(IEnumerable<TreeGridRow> removedRows)
+        {
+            foreach (var row in removedRows)
+            {
+                RemoveRow(row);
+            }
+        }
+
+        private void RemoveRow(TreeGridRow row)
+        {
+            var idx = Grid.GetRow(row.FirstCellStackPanel);
+            var rowInfo = _rowItemMap[_rootGrid.RowDefinitions[idx]];
+            RemoveExistingRows(idx, rowInfo, true);
         }
 
         private void AddRow(TreeGridRow item)
@@ -159,20 +191,21 @@ namespace Callisto.Controls
             UpdateRowForItem(item, _rootGrid.RowDefinitions.Count - 2, itemInfo);
         }
 
-        private void UpdateRowForItem(TreeGridRow item, int index, ItemInfo info)
+        private void UpdateRowForItem(TreeGridRow row, int index, ItemInfo info)
         {
             //Populate columns
-            var fields = item.Cells.ToList();
-            for (int i = 0; i < fields.Count; i++)
+            var cells = row.Cells.ToList();
+            for (int i = 0; i < cells.Count; i++)
             {
                 if(i == 0)
                 {
                     //first column is treated special because of the image
                     //BUGBUG add RTL support
                     double indentwidth = info.IndentLevel * IndentSize;
-                    var sp = new StackPanel() { Orientation = Orientation.Horizontal, Tag = item };
+                    var sp = new StackPanel() { Orientation = Orientation.Horizontal, Tag = row};
+                    row.FirstCellStackPanel = sp;
                     info.Root = sp;
-                    if (item.HasChildren)
+                    if (row.HasChildren)
                     {
                         TreeGridIcon collapsedIcon = new TreeGridIcon() { Content = CollapsedIcon, Tag=info, Collapsed = true }; 
                         collapsedIcon.Tapped += row_Tapped;
@@ -180,21 +213,24 @@ namespace Callisto.Controls
                     }
                     else
                     {
-                        //TODO Replace this with indentation based on the real image. This requires changing the control to something that has width.
+                        //TODO Replace this with indentation based on the real image. The easiest is to wait for 8.1 and use the new Icon class for the Collapsed/Expand properties.
                         indentwidth += 12;
                     }
                     sp.Margin = new Thickness(indentwidth, 0, 0, 0);
-                    fields[i].Margin = new Thickness(5,0,0,0);
-                    sp.Children.Add(fields[i]);
+                    //BUGBUG provide setting for cell margin
+                    cells[i].Margin = new Thickness(5,0,0,0);
+                    var cell = new TreeGridCell();
+                    cell.Content = cells[i];
+                    sp.Children.Add(cell);
                     AddToGrid(index, i, sp);
                     _rowItemMap.Add(_rootGrid.RowDefinitions[index], info);
                 }
                 else
                 {
-                    AddToGrid(index, i, fields[i]);
+                    AddToGrid(index, i, cells[i]);
                 }
             }
-            AddSplitterForRow(index + 1, item);
+            AddSplitterForRow(index + 1, row);
         }
 
         private void AddToGrid(int row, int column, FrameworkElement item)
@@ -214,7 +250,7 @@ namespace Callisto.Controls
             //Cache children
 
             var currentIndex = Grid.GetRow(sp);
-            var parentInfo = _rowItemMap[_rootGrid.RowDefinitions[currentIndex]];
+            var rowInfo = _rowItemMap[_rootGrid.RowDefinitions[currentIndex]];
             if(icon.Collapsed)
             {
                 var children = ExpandCallback(item.ExpandCallbackArg);
@@ -228,7 +264,7 @@ namespace Callisto.Controls
                 foreach (var child in children)
                 {
                     currentIndex += 2;
-                    var childInfo = new ItemInfo(){IndentLevel = parentInfo.IndentLevel + 1};
+                    var childInfo = new ItemInfo(){IndentLevel = rowInfo.IndentLevel + 1};
                     UpdateRowForItem(child, currentIndex, childInfo);
                 }
             }
@@ -236,16 +272,7 @@ namespace Callisto.Controls
             {
                 icon.Collapsed = true;
                 icon.Content = CollapsedIcon;
-                var totalRows = _rootGrid.RowDefinitions.Count -1;
-                var childrenCount = GetChildrenCount(parentInfo.IndentLevel, currentIndex);
-                var lastRemainingRow = _rootGrid.RowDefinitions.Count - childrenCount - 1;
-                RemoveExistingElements(currentIndex, childrenCount) ;
-                for (int i = totalRows; i > lastRemainingRow; i--)
-                {
-                    var row = _rootGrid.RowDefinitions[i];
-                    _rowItemMap.Remove(row);
-                    _rootGrid.RowDefinitions.Remove(row);
-                }
+                RemoveExistingRows(currentIndex, rowInfo, false) ;
             }
             
         }
@@ -265,21 +292,33 @@ namespace Callisto.Controls
             return _rootGrid.RowDefinitions.Count - currentIndex - 2;
         }
 
-        private void RemoveExistingElements(int currentIndex, int countOfDeletedRows)
+        private void RemoveExistingRows(int currentIndex, ItemInfo rowInfo, bool deleteSelf)
         {
             var l = new List<FrameworkElement>();
-            var lastDeletedRow = currentIndex + countOfDeletedRows;
+            //this method first calculate how many children to remove
+            //then it finds all the elements in deleted rows and collect them to a list
+            //it then moves all the elements in the rows afterwards to the new location in the grid
+            //when its done it removes all the content of the deleted rows from the grid
+            //it updates the mapping from the line info and the row index so we always know the indent
+            //finally it removes the empty rows from the end
+            var childrenCount = GetChildrenCount(rowInfo.IndentLevel, currentIndex);
+
+            var startDeletedRow = deleteSelf ? currentIndex : currentIndex + 2;
+            var rowsToDelete = deleteSelf ? childrenCount + 2 : childrenCount;
+
             foreach (FrameworkElement fe in _rootGrid.Children)
             {
                 var row = Grid.GetRow(fe);
-                if (row > currentIndex + 1 && row < lastDeletedRow + 1)
+                if (row >= startDeletedRow && row < startDeletedRow + rowsToDelete)
                 {
                     l.Add(fe);
                 }
-                else if (row > lastDeletedRow + 1)
+                else if (row >= startDeletedRow + rowsToDelete)
                 {
-                    var newRowIndex = row - countOfDeletedRows;
+                    var newRowIndex = row - rowsToDelete;
                     Grid.SetRow(fe, newRowIndex);
+                    //Reset row height
+                    _rootGrid.RowDefinitions[newRowIndex].Height = GridLength.Auto;
                 }
             }
 
@@ -289,13 +328,31 @@ namespace Callisto.Controls
             }
 
             //Update the ItemInfo
-            for (int i = lastDeletedRow + 2; i < _rootGrid.RowDefinitions.Count; i = i + 2)
+            UpdateItemInfo(rowsToDelete, startDeletedRow + rowsToDelete);
+
+            //Remove the last empty rows from grid
+            RemoveEmptyRows(rowsToDelete);
+        }
+
+        private void UpdateItemInfo(int rowsToDelete, int lastDeletedRow)
+        {
+            for (int i = lastDeletedRow; i < _rootGrid.RowDefinitions.Count - 1 ; i = i + 2)
             {
                 var oldRow = _rootGrid.RowDefinitions[i];
                 var itemInfo = _rowItemMap[oldRow];
-                _rowItemMap[_rootGrid.RowDefinitions[i- countOfDeletedRows]] = itemInfo;
+                _rowItemMap[_rootGrid.RowDefinitions[i - rowsToDelete]] = itemInfo;
             }
+        }
 
+        private void RemoveEmptyRows(int count)
+        {
+            var lastRowIndex = _rootGrid.RowDefinitions.Count - 1;
+            for (int i = lastRowIndex; i > lastRowIndex - count; i--)
+            {
+                var row = _rootGrid.RowDefinitions[i];
+                _rowItemMap.Remove(row);
+                _rootGrid.RowDefinitions.Remove(row);
+            }
         }
         private void UpdateExistingRows(int currentIndex, int count)
         {
@@ -313,7 +370,7 @@ namespace Callisto.Controls
 
         #endregion
 
-        #region Insert new rows
+        #region Insert/Remove new rows
 
         private void InsertNewRows(int currentIndex, int count)
         {
@@ -340,8 +397,6 @@ namespace Callisto.Controls
         }
 
         #endregion
-
-
 
         #region Row and Column collections
 
@@ -524,9 +579,6 @@ namespace Callisto.Controls
         }
 
         #endregion
-
-
-
 
     }
 }

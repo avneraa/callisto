@@ -8,7 +8,11 @@
     mc:Ignorable="d"  xmlns:c="using:Callisto.Controls">
 
     <Grid Background="Pink">
-        <Border BorderBrush="Transparent" BorderThickness="0">
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Border BorderBrush="Transparent" BorderThickness="0" Grid.Row="0">
             <!-- BUGBUG fix the issue where the last line is covered by the scroller when these are set Height="150" Width="190" -->
             <c:TreeGrid x:Name="SampleGrid" Background="DarkGreen" HorizontalScrollBarVisibility="Disabled" IndentSize="6" >
                 <c:TreeGrid.Columns>
@@ -45,5 +49,6 @@
                 </c:TreeGrid.ItemTemplate>
             </c:TreeGrid>
         </Border>
+        <Button Content="DeleteFirstRow" Grid.Row="1" x:Name="deleteFirstRow" />
     </Grid>
 </Page>

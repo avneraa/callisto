@@ -163,5 +163,11 @@ namespace Callisto.Controls
 
         #endregion
 
+        #region Internal Properties
+
+        internal StackPanel FirstCellStackPanel { get; set; }
+
+        #endregion
+
     }
 }

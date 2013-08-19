@@ -22,7 +22,13 @@ namespace Callisto.TestApp.SamplePages
             this.InitializeComponent();
             SampleGrid.ItemsSource = _sampleData.RootNodes;
             SampleGrid.ExpandCallback = GetChildren;
+            deleteFirstRow.Tapped += deleteFirstRow_Tapped;
             //PopulateDebuggerGrid();
+        }
+
+        void deleteFirstRow_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            SampleGrid.Rows.RemoveAt(0);
         }
 
         private void PopulateDebuggerGrid() 

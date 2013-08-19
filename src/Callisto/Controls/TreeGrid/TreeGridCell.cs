@@ -19,13 +19,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 
 namespace Callisto.Controls
 {
     //Represent the cell content of the grid 
     public class TreeGridCell : ContentControl
     {
-
+        public TreeGridCell()
+        {
+            this.HorizontalAlignment = Windows.UI.Xaml.HorizontalAlignment.Stretch;
+            this.VerticalAlignment = Windows.UI.Xaml.VerticalAlignment.Stretch;
+            //this.Height = 50;
+            //this.Width = 80;
+            this.Background = new SolidColorBrush(Colors.Red);
+            //this.VerticalContentAlignment = Windows.UI.Xaml.VerticalAlignment.Stretch;
+            //this.HorizontalContentAlignment = Windows.UI.Xaml.HorizontalAlignment.Stretch;
+        }
     }
 }
